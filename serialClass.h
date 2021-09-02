@@ -36,15 +36,14 @@ class serialClass
 
 			public:
 				int readCue=0;
-				int writeCue=0;
+				int writeCue=0;				
 
 			private:
 				std::thread readThread;
 				std::thread writeThread;
 				std::mutex classMutex;
-
-				bool readThreadState=true;
-				bool writeThreadState=true;
+				bool readThreadState=false;
+				bool writeThreadState=false;
 		};
 
 	public:

@@ -31,16 +31,21 @@ serialClass::serialThreads::~serialThreads()
 
 void serialClass::serialThreads::startThreads()
 {
+	readThreadState=true;
+	writeThreadState=true;
 	readThread=thread(&serialClass::serialThreads::readThreadFn,this);
-	writeThread=thread(&serialClass::serialThreads::writeThreadFn,this);
+	writeThread=thread(&serialClass::serialThreads::writeThreadFn,this);	
 }
 
 void serialClass::serialThreads::endThreads()
 {
-	readThreadState=false;
-	writeThreadState=false;
-	readThread.join();
-	writeThread.join();
+	if(readThreadState | writeThreadState)
+	{
+		readThreadState=false;
+		writeThreadState=false;
+		readThread.join();
+		writeThread.join();
+	}
 }
 
 bool serialClass::serialThreads::readThreadFn()
@@ -273,7 +278,7 @@ BOOL WINAPI CtrlHandler(DWORD fdwCtrlType)
 
 void errorHandler(string msg)
 {
-	cout<<"Message: "<<msg<<endl;
+	cout<<"Error message: "<<msg<<endl;
 	
     serialClass sc;
 	sc.end();
@@ -291,7 +296,7 @@ void errorHandler(string msg)
 	0,
 	NULL);
 
-	cout<<"Error rep: ";
+	cout<<"GetLastError: ";
 	wcout<<errorText<<endl;
 	LocalFree(errorText);
 	errorText=NULL;

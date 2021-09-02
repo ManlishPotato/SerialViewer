@@ -21,7 +21,7 @@
     <ClInclude Include="cMain.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\EventSerialCom\serialClass.h">
+    <ClInclude Include="serialClass.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -32,7 +32,7 @@
     <ClCompile Include="cMain.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\EventSerialCom\serialClass.cpp">
+    <ClCompile Include="serialClass.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
