@@ -25,6 +25,6 @@ class cMain : public wxFrame
 		wxMenuBar* menubar;
 		wxMenu* file;
 
-		settingsDialog* settingsDia=nullptr;		
+		settingsDialog* settingsDia=nullptr;				
 };
 

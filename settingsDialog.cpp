@@ -1,12 +1,11 @@
 #include "settingsDialog.h"
 
-int settBaseId=10000;
-int settBtn1Id=settBaseId+7;
-int settBtn2Id=settBaseId+8;
+int settingsBaseId=10000;
+int buttonOkId=settingsBaseId+7;
 
 wxBEGIN_EVENT_TABLE(settingsDialog,wxDialog)
-	EVT_BUTTON(settBtn1Id,buttonOk)
-	EVT_BUTTON(settBtn2Id,buttonCancel)
+	EVT_BUTTON(buttonOkId,buttonOk)
+	EVT_BUTTON(wxID_EXIT,buttonCancel)
 wxEND_EVENT_TABLE()
 
 const int ch1Num=3;
@@ -20,26 +19,29 @@ settingsDialog::settingsDialog(const wxString& title) : wxDialog(NULL,-1,title,w
 {
 	wxPanel* panel=new wxPanel(this,-1);
 
-	wxComboBox* cbox1=new wxComboBox(this,wxID_ANY,"No Parity",wxPoint(20,20),wxSize(100,25),ch1Num,cbox1Choice);
-	wxComboBox* cbox2=new wxComboBox(this,wxID_ANY,"1 Stop Bit",wxPoint(20,60),wxSize(100,25),ch2Num,cbox2Choice);
-	wxComboBox* cbox3=new wxComboBox(this,wxID_ANY,"8 Bits",wxPoint(20,100),wxSize(100,25),ch3Num,cbox3Choice);
+	cbox1=new wxComboBox(this,wxID_ANY,"No Parity",wxPoint(20,20),wxSize(100,25),ch1Num,cbox1Choice);
+	cbox2=new wxComboBox(this,wxID_ANY,"1 Stop Bit",wxPoint(20,60),wxSize(100,25),ch2Num,cbox2Choice);
+	cbox3=new wxComboBox(this,wxID_ANY,"8 Bits",wxPoint(20,100),wxSize(100,25),ch3Num,cbox3Choice);
 
-	wxButton* btn1=new wxButton(this,settBtn1Id,"OK",wxPoint(50,220),wxSize(75,30));
-	wxButton* btn2=new wxButton(this,settBtn2Id,"Cancel",wxPoint(150,220),wxSize(75,30));
+	btn1=new wxButton(this,buttonOkId,"OK",wxPoint(50,220),wxSize(75,30));
+	btn2=new wxButton(this,wxID_EXIT,"Cancel",wxPoint(150,220),wxSize(75,30));
 
 	Centre();
-	ShowModal();
-	Destroy();
+	ShowModal();	
 }
 
 void settingsDialog::buttonOk(wxCommandEvent &evt)
 {
-	wxMessageBox(wxT("Test"));	
+	comboParity=cbox1->GetValue();
+	comboStopBits=cbox2->GetValue();
+	comboByteSize=cbox3->GetValue();
 
+	Close(true);
 	evt.Skip();
 }
 
 void settingsDialog::buttonCancel(wxCommandEvent &evt)
-{	
+{
+	Close(true);
 	evt.Skip();
 }
