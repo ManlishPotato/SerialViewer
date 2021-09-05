@@ -1,11 +1,16 @@
 #pragma once
 #include "wx/wx.h"
+#include "settingsDialog.h"
 
 class cMain : public wxFrame
 {
 	public:
 		cMain();
 		~cMain();
+
+		void menuSettings(wxCommandEvent &evt);
+		void menuAbout(wxCommandEvent &evt);
+		wxDECLARE_EVENT_TABLE();
 		
 	public:
 		wxTextCtrl* txt1=nullptr;
@@ -19,5 +24,7 @@ class cMain : public wxFrame
 		
 		wxMenuBar* menubar;
 		wxMenu* file;
+
+		settingsDialog* settingsDia=nullptr;		
 };
 

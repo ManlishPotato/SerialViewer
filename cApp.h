@@ -2,6 +2,7 @@
 
 #include "wx/wx.h"
 #include "cMain.h"
+#include "settingsDialog.h"
 
 class cApp : public wxApp
 {

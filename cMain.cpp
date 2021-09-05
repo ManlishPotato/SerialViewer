@@ -1,13 +1,17 @@
 #include "cMain.h"
 
 int baseId=10000;
-int btn1Id=baseId++;
-int check1Id=baseId++;
-int check2Id=baseId++;
-int check3Id=baseId++;
-int settingsId=baseId++;
-int aboutId=baseId++;
+int btn1Id=baseId+1;
+int check1Id=baseId+2;
+int check2Id=baseId+3;
+int check3Id=baseId+4;
+int settingsId=baseId+5;
+int aboutId=baseId+6;
 
+wxBEGIN_EVENT_TABLE(cMain,wxFrame)
+	EVT_MENU(settingsId,menuSettings)
+	EVT_MENU(aboutId,menuAbout)
+wxEND_EVENT_TABLE()
 
 const int box1ChoiceNum=2;
 const int box2ChoiceNum=2;
@@ -32,10 +36,25 @@ cMain::cMain() : wxFrame(nullptr,wxID_ANY,"SerialViewer1.0",wxPoint(30,30),wxSiz
 	file->Append(settingsId,wxT("&Port settings"));
 	file->Append(aboutId,wxT("&About"));
 	menubar->Append(file,wxT("&File"));
-	SetMenuBar(menubar);
+	SetMenuBar(menubar);	
 }
 
 cMain::~cMain()
 {
 
+}
+
+void cMain::menuSettings(wxCommandEvent &evt)
+{
+	settingsDia=new settingsDialog(wxT("Port settings"));
+	settingsDia->Show(true);
+
+	evt.Skip();
+}
+
+void cMain::menuAbout(wxCommandEvent &evt)
+{
+	wxMessageBox(wxT("SerialViewer version 1.0\nDevolped by Benjamin Solar"));
+
+	evt.Skip();
 }
