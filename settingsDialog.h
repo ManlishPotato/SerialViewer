@@ -4,9 +4,8 @@
 
 class settingsDialog : public wxDialog
 {
-
 	public:
-		settingsDialog(const wxString& title);
+		settingsDialog(const wxString& title,wxString comboByteSize,wxString comboParity,wxString comboStopBits);
 
 		wxComboBox* cbox1=nullptr;
 		wxComboBox* cbox2=nullptr;
@@ -14,15 +13,8 @@ class settingsDialog : public wxDialog
 
 		wxButton* btn1=nullptr;
 		wxButton* btn2=nullptr;
-
-		void buttonOk(wxCommandEvent &evt);
+				
 		void buttonCancel(wxCommandEvent &evt);
 		wxDECLARE_EVENT_TABLE();
-
-	public:
-		wxString comboParity="";
-		wxString comboStopBits="";
-		wxString comboByteSize="";
-
 };
 

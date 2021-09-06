@@ -1,0 +1,11 @@
+To be Implemented:
+	-Finish back end of port settings
+	-Connect other port settings
+	-Second pass of ui design
+	-Connect start button to init serial
+	-Connect transceive to txt1
+	-Connect receive to txt2
+	-Save port settings to file
+
+Bugs to fix:
+	-Pressing "X" in Port Settings window saves settings unlike pressing "Cancel" does. Desirable?

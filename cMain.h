@@ -23,8 +23,16 @@ class cMain : public wxFrame
 		wxCheckBox* check2=nullptr;
 		
 		wxMenuBar* menubar;
-		wxMenu* file;
+		wxMenu* file;					
+};
 
-		settingsDialog* settingsDia=nullptr;				
+class DeafultPortSettings
+{
+	public:
+		wxString comPort="COM3";
+		wxString baudRate="9600";
+		wxString byteSize="9 Bits";
+		wxString parity="Even Parity";
+		wxString stopBits="2 Stop Bits";
 };
 

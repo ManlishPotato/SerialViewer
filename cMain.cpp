@@ -1,16 +1,6 @@
 #include "cMain.h"
 #include "windows.h"
 
-class DeafultPortSettings
-{
-	public:
-		const wchar_t* comPort=L"COM3";
-		DWORD baudRate=9600;
-		BYTE byteSize=8;
-		BYTE parity=NOPARITY;
-		BYTE stopBits=ONESTOPBIT;
-};
-
 DeafultPortSettings dps;
 
 int baseId=10000;
@@ -56,15 +46,18 @@ cMain::~cMain()
 }
 
 void cMain::menuSettings(wxCommandEvent &evt)
-{
-	settingsDia=new settingsDialog(wxT("Port settings"));
-	settingsDia->Show(true);
-	
-	if((settingsDia->comboParity)=="No Parity") dps.parity=NOPARITY;
-	else if((settingsDia->comboParity)=="Even Parity") dps.parity=EVENPARITY;
-	else if((settingsDia->comboParity)=="Odd Parity") dps.parity=ODDPARITY;	
+{	
+	settingsDialog sd(wxT("Port Settings"),dps.byteSize,dps.parity,dps.stopBits);
+	if(sd.ShowModal()==wxID_OK)
+	{
+		dps.byteSize=sd.cbox1->GetValue();
+		dps.parity=sd.cbox2->GetValue();
+		dps.stopBits=sd.cbox3->GetValue();
 
-	settingsDia->Destroy();
+		txt2->AppendText(dps.byteSize+"\n");
+		txt2->AppendText(dps.parity+"\n");
+		txt2->AppendText(dps.stopBits+"\n");
+	}	
 
 	evt.Skip();
 }
