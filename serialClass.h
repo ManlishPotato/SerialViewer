@@ -5,6 +5,10 @@
 #include <thread>
 #include <chrono>
 #include <mutex>
+#include <string>
+#include <string.h>
+
+#define MAX_PORT_NUM 10
 
 
 class serialClass
@@ -23,8 +27,7 @@ class serialClass
 		class serialThreads
 		{
 			public:
-				serialThreads();
-				~serialThreads();
+				serialThreads();				
 
 				void startThreads();
 				void endThreads();
@@ -47,13 +50,25 @@ class serialClass
 		};
 
 	public:
-		serialClass();
-		~serialClass();
-
 		bool init(portSettings ps);
 		void end();
 		bool write(char* cstr);
 		bool reset();
-		void printBuffer();	
+		void printBuffer();
+};
+
+class FindComPorts
+{
+	public:
+		bool listComPorts(std::wstring *portNameList,std::wstring *portList,int &numPorts,std::string &error);
+
+	private:
+		void regErrorHandler(HKEY key,std::string &error,const std::string errorCode);
+		bool openRegister(HKEY rootKey,const wchar_t* subKey,HKEY &opKey);
+		bool infoKey(HKEY regKey,DWORD &numValues,DWORD &maxNameLen,DWORD &maxValueSize);
+		bool enumValueKey(HKEY regKey,DWORD numValues,DWORD maxNameLen,DWORD maxValueSize,std::wstring *nameArray,std::wstring *valueArray);
+
+	public:
+		std::string specificErrorCode;
 };
 

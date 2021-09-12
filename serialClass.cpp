@@ -25,10 +25,6 @@ serialClass::serialThreads::serialThreads()
 	SetConsoleCtrlHandler(CtrlHandler,true);
 }
 
-serialClass::serialThreads::~serialThreads()
-{
-}
-
 void serialClass::serialThreads::startThreads()
 {
 	readThreadState=true;
@@ -171,14 +167,6 @@ bool serialClass::serialThreads::writeThreadFn()
 
 serialClass::serialThreads threadClass;
 
-serialClass::serialClass()
-{	
-}
-
-serialClass::~serialClass()
-{
-}
-
 bool serialClass::init(portSettings ps)
 {
 	portHandle=CreateFile
@@ -300,4 +288,121 @@ void errorHandler(string msg)
 	wcout<<errorText<<endl;
 	LocalFree(errorText);
 	errorText=NULL;
+}
+
+bool FindComPorts::listComPorts(wstring *portNameList,wstring *portList,int &numPorts,string &error)
+{
+	HKEY key;
+	if(!openRegister(HKEY_LOCAL_MACHINE,L"HARDWARE\\DEVICEMAP\\SERIALCOMM",key)) {regErrorHandler(key,error,"Failed open register"); return false;}
+
+	DWORD vNum=0;
+	DWORD mLen=0;
+	DWORD mSize=0;
+	if(!infoKey(key,vNum,mLen,mSize)) {regErrorHandler(key,error,"Failed getting reg info"); return false;}
+	if(vNum>MAX_PORT_NUM) {regErrorHandler(key,error,"Not enough mem"); return false;}
+	if(!enumValueKey(key,vNum,mLen,mSize,portNameList,portList)) {regErrorHandler(key,error,"Error enum key"); return false;}
+
+	numPorts=vNum;
+	RegCloseKey(key);			
+
+	return true;
+}
+
+void FindComPorts::regErrorHandler(HKEY key,string &error,const string errorCode)
+{
+	RegCloseKey(key);
+	error=errorCode;
+}
+
+bool FindComPorts::openRegister(HKEY rootKey,const wchar_t* subKey,HKEY &opKey)
+{
+	LONG result=RegOpenKeyExW(rootKey,subKey,0,KEY_READ | KEY_QUERY_VALUE | KEY_WOW64_64KEY,&opKey);
+
+	if(result!=ERROR_SUCCESS)
+	{
+		if(result==ERROR_FILE_NOT_FOUND) specificErrorCode="Key not found";
+		specificErrorCode="Error opening key";
+
+		return false;
+	}
+	else return true;
+}
+
+bool FindComPorts::infoKey(HKEY regKey,DWORD &numValues,DWORD &maxNameLen,DWORD &maxValueSize)
+{
+	LONG result=RegQueryInfoKeyW
+	(
+		regKey,
+		NULL,
+		NULL,
+		NULL,
+		NULL,
+		NULL,
+		NULL,
+		&numValues,
+		&maxNameLen,
+		&maxValueSize,
+		NULL,
+		NULL
+	);
+	maxNameLen++; //To include null terminator
+	if(result!=ERROR_SUCCESS)	
+	{
+		specificErrorCode="Error query info";
+		return false;
+	}
+	else return true;
+}
+
+bool FindComPorts::enumValueKey(HKEY regKey,DWORD numValues,DWORD maxNameLen,DWORD maxValueSize,wstring *nameArray,wstring *valueArray)
+{
+	DWORD varType=REG_SZ;
+
+	for(DWORD indexC=0;indexC<numValues;indexC++)
+	{
+		wchar_t *valueBuff=new wchar_t[maxValueSize/2];
+		wchar_t *nameBuff=new wchar_t[maxNameLen];
+		DWORD valueBuffSize=maxValueSize;
+		DWORD nameBuffSize=maxNameLen;
+
+		LONG result=RegEnumValueW
+		(
+			regKey,
+			indexC,
+			nameBuff,
+			&nameBuffSize,
+			NULL,
+			&varType,
+			(LPBYTE)valueBuff,
+			&valueBuffSize
+		);
+		if(result!=ERROR_SUCCESS)
+		{
+			if(result==ERROR_NO_MORE_ITEMS)
+			{
+				specificErrorCode="Error no more items";
+				return false;
+			}
+			else if(result==ERROR_MORE_DATA)
+			{
+				specificErrorCode="Error more data";
+				return false;
+			}
+			else
+			{
+				specificErrorCode="Error enum";
+				return false;
+			}
+		}
+		else
+		{
+			nameArray[indexC]=nameBuff;
+			valueArray[indexC]=valueBuff;
+		}
+
+		delete[] valueBuff;
+		delete[] nameBuff;
+	}
+
+	return true;
 }

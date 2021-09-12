@@ -10,6 +10,7 @@ class cMain : public wxFrame
 
 		void menuSettings(wxCommandEvent &evt);
 		void menuAbout(wxCommandEvent &evt);
+		void baudChange(wxCommandEvent &evt);
 		wxDECLARE_EVENT_TABLE();
 		
 	public:

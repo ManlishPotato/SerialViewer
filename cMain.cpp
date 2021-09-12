@@ -10,15 +10,16 @@ int check2Id=baseId+3;
 int check3Id=baseId+4;
 int settingsId=baseId+5;
 int aboutId=baseId+6;
+int cboxBaudId=baseId+7;
 
 wxBEGIN_EVENT_TABLE(cMain,wxFrame)
 	EVT_MENU(settingsId,menuSettings)
 	EVT_MENU(aboutId,menuAbout)
+	EVT_COMBOBOX(cboxBaudId,baudChange)
 wxEND_EVENT_TABLE()
 
 const int boxChoiceNum=2;
 const wxString box1Choice[boxChoiceNum]={"9600","115200"};
-const wxString box2Choice[boxChoiceNum]={"COM3","COM4"};
 const wxString box3Choice[boxChoiceNum]={"Delim: /n/l","Delim: >"};
 
 cMain::cMain() : wxFrame(nullptr,wxID_ANY,"SerialViewer1.0",wxPoint(30,30),wxSize(650,600))
@@ -26,8 +27,8 @@ cMain::cMain() : wxFrame(nullptr,wxID_ANY,"SerialViewer1.0",wxPoint(30,30),wxSiz
 	txt1=new wxTextCtrl(this,wxID_ANY,"",wxPoint(10,10),wxSize(500,28));
 	txt2=new wxTextCtrl(this,wxID_ANY,"",wxPoint(10,50),wxSize(500,450),wxTE_MULTILINE | wxTE_READONLY);
 	btn1=new wxButton(this,btn1Id,"Connect",wxPoint(520,10),wxSize(100,50));
-	box1=new wxComboBox(this,wxID_ANY,"9600",wxPoint(520,90),wxSize(100,25),boxChoiceNum,box1Choice);
-	box2=new wxComboBox(this,wxID_ANY,"COM4",wxPoint(520,140),wxSize(100,25),boxChoiceNum,box2Choice);
+	box1=new wxComboBox(this,cboxBaudId,dps.baudRate,wxPoint(520,90),wxSize(100,25),boxChoiceNum,box1Choice);
+	box2=new wxComboBox(this,wxID_ANY,"",wxPoint(520,140),wxSize(100,25));
 	box3=new wxComboBox(this,wxID_ANY,"Delim: /n/l",wxPoint(120,500),wxSize(100,25),boxChoiceNum,box3Choice);
 	check1=new wxCheckBox(this,check1Id,"Auto DTR Reset",wxPoint(520,180),wxSize(100,25));
 	check2=new wxCheckBox(this,check2Id,"Auto Scroll",wxPoint(12,500),wxSize(100,25));
@@ -52,11 +53,7 @@ void cMain::menuSettings(wxCommandEvent &evt)
 	{
 		dps.byteSize=sd.cbox1->GetValue();
 		dps.parity=sd.cbox2->GetValue();
-		dps.stopBits=sd.cbox3->GetValue();
-
-		txt2->AppendText(dps.byteSize+"\n");
-		txt2->AppendText(dps.parity+"\n");
-		txt2->AppendText(dps.stopBits+"\n");
+		dps.stopBits=sd.cbox3->GetValue();		
 	}	
 
 	evt.Skip();
@@ -65,6 +62,13 @@ void cMain::menuSettings(wxCommandEvent &evt)
 void cMain::menuAbout(wxCommandEvent &evt)
 {
 	wxMessageBox(wxT("SerialViewer version 1.0\nDevolped by Benjamin Solar."));
+
+	evt.Skip();
+}
+
+void cMain::baudChange(wxCommandEvent &evt)
+{
+	dps.baudRate=box1->GetValue();	
 
 	evt.Skip();
 }

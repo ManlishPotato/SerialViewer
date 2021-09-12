@@ -5,7 +5,7 @@
 class settingsDialog : public wxDialog
 {
 	public:
-		settingsDialog(const wxString& title,wxString comboByteSize,wxString comboParity,wxString comboStopBits);
+		settingsDialog(const wxString& title,wxString comboByteSize,wxString comboParity,wxString comboStopBits);		
 
 		wxComboBox* cbox1=nullptr;
 		wxComboBox* cbox2=nullptr;
