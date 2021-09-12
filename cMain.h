@@ -1,6 +1,7 @@
 #pragma once
 #include "wx/wx.h"
 #include "settingsDialog.h"
+#include "serialClass.h";
 
 class cMain : public wxFrame
 {

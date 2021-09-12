@@ -1,5 +1,6 @@
 #include "cMain.h"
 #include "windows.h"
+using namespace std;
 
 DeafultPortSettings dps;
 
@@ -27,11 +28,22 @@ cMain::cMain() : wxFrame(nullptr,wxID_ANY,"SerialViewer1.0",wxPoint(30,30),wxSiz
 	txt1=new wxTextCtrl(this,wxID_ANY,"",wxPoint(10,10),wxSize(500,28));
 	txt2=new wxTextCtrl(this,wxID_ANY,"",wxPoint(10,50),wxSize(500,450),wxTE_MULTILINE | wxTE_READONLY);
 	btn1=new wxButton(this,btn1Id,"Connect",wxPoint(520,10),wxSize(100,50));
-	box1=new wxComboBox(this,cboxBaudId,dps.baudRate,wxPoint(520,90),wxSize(100,25),boxChoiceNum,box1Choice);
-	box2=new wxComboBox(this,wxID_ANY,"",wxPoint(520,140),wxSize(100,25));
+	box1=new wxComboBox(this,cboxBaudId,dps.baudRate,wxPoint(520,90),wxSize(100,25),boxChoiceNum,box1Choice);	
 	box3=new wxComboBox(this,wxID_ANY,"Delim: /n/l",wxPoint(120,500),wxSize(100,25),boxChoiceNum,box3Choice);
 	check1=new wxCheckBox(this,check1Id,"Auto DTR Reset",wxPoint(520,180),wxSize(100,25));
 	check2=new wxCheckBox(this,check2Id,"Auto Scroll",wxPoint(12,500),wxSize(100,25));
+
+	FindComPorts findCom;
+	wstring ports[MAX_PORT_NUM];
+	wstring portNames[MAX_PORT_NUM];
+	int nPorts;
+	string errorC;
+	findCom.listComPorts(portNames,ports,nPorts,errorC);
+
+	wxString portArray[MAX_PORT_NUM];
+	for(int i=0;i<nPorts;i++) portArray[i]=ports[i];
+
+	box2=new wxComboBox(this,wxID_ANY,portArray[0],wxPoint(520,140),wxSize(100,25),nPorts,portArray);
 
 	menubar=new wxMenuBar;
 	file=new wxMenu;

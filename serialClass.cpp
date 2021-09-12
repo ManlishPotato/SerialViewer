@@ -292,8 +292,9 @@ void errorHandler(string msg)
 
 bool FindComPorts::listComPorts(wstring *portNameList,wstring *portList,int &numPorts,string &error)
 {
+	//HARDWARE\\DEVICEMAP\\SERIALCOMM
 	HKEY key;
-	if(!openRegister(HKEY_LOCAL_MACHINE,L"HARDWARE\\DEVICEMAP\\SERIALCOMM",key)) {regErrorHandler(key,error,"Failed open register"); return false;}
+	if(!openRegister(HKEY_LOCAL_MACHINE,L"SOFTWARE\\registerTest",key)) {regErrorHandler(key,error,"Failed open register"); return false;}
 
 	DWORD vNum=0;
 	DWORD mLen=0;
