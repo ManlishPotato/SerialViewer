@@ -1,7 +1,5 @@
 To be Implemented:
-	-Save port settings to file
-	-Error handling
-	-Debug info - buffer rx/tx cue
+	-Auto clear screen when connecting check box
 
 Bugs to fix:
 	-Pressing "X" in Port Settings window saves settings unlike pressing "Cancel" does. Desirable?

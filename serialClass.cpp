@@ -1,54 +1,40 @@
 #include "serialClass.h"
 using namespace std;
 
-//Buffer size standards
-#define rbs 256
-#define tbs 256
-
-//Read buffer
-char readBuffer[rbs]={0};
-int rbrp=0;
-int rbwp=0;
-
-//Write buffer
-char writeBuffer[tbs]={0};
-int wbrp=0;
-int wbwp=0;
-
 HANDLE portHandle; //Handle for the comm port
 
-BOOL WINAPI CtrlHandler(DWORD fdwCtrlType);
-void errorHandler(string msg);
+wxDECLARE_EVENT(SC_ERROR_EVT,wxCommandEvent);
 
-serialClass::serialThreads::serialThreads()
+void serialThreads::startThreads(wxEvtHandler *evtHandle)
 {
-	SetConsoleCtrlHandler(CtrlHandler,true);
+	if(!readThreadState && !writeThreadState)
+	{
+		evtHandlePtr=evtHandle;
+		readThreadState=true;
+		writeThreadState=true;
+		readThread=thread(&serialThreads::readThreadFn,this);
+		writeThread=thread(&serialThreads::writeThreadFn,this);
+	}
+	//TODO: add error if else
 }
 
-void serialClass::serialThreads::startThreads()
+void serialThreads::endThreads()
 {
-	readThreadState=true;
-	writeThreadState=true;
-	readThread=thread(&serialClass::serialThreads::readThreadFn,this);
-	writeThread=thread(&serialClass::serialThreads::writeThreadFn,this);	
-}
-
-void serialClass::serialThreads::endThreads()
-{
-	if(readThreadState | writeThreadState)
+	if(readThreadState || writeThreadState)
 	{
 		readThreadState=false;
 		writeThreadState=false;
 		readThread.join();
 		writeThread.join();
 	}
+	//TODO: add error if else unless in init
 }
 
-bool serialClass::serialThreads::readThreadFn()
+bool serialThreads::readThreadFn()
 {		
 	OVERLAPPED readOv={0};
 	readOv.hEvent=CreateEvent(NULL,true,false,NULL);
-	if(readOv.hEvent==NULL) {CloseHandle(readOv.hEvent); errorHandler("Error creating read event handle"); return false;}
+	if(readOv.hEvent==NULL) {CloseHandle(readOv.hEvent); stErrorHandler("Error creating read event handle"); return false;}
 
 	DWORD evMask=0;
 
@@ -78,11 +64,11 @@ bool serialClass::serialThreads::readThreadFn()
 							{
 								bufferReadData(dataInBuff,bytesRead);
 							}
-							else {CloseHandle(readOv.hEvent); errorHandler("Error reading after waiting, GOR false."); return false;}
+							else {CloseHandle(readOv.hEvent); stErrorHandler("Error reading after waiting, GOR."); return false;}
 						}
-						else {CloseHandle(readOv.hEvent); errorHandler("Error reading, wait for read failed."); return false;}						
+						else {CloseHandle(readOv.hEvent); stErrorHandler("Error reading, wait for read failed WFSO."); return false;}
 					}
-					else {CloseHandle(readOv.hEvent); errorHandler("Error reading."); return false;}					
+					else {CloseHandle(readOv.hEvent); stErrorHandler("Error reading GLE."); return false;}					
 				}
 				else
 				{
@@ -91,19 +77,19 @@ bool serialClass::serialThreads::readThreadFn()
 					{
 						bufferReadData(dataInBuff,bytesRead);
 					}
-					else {CloseHandle(readOv.hEvent); errorHandler("Error reading, returned instantly but failed."); return false;}
+					else {CloseHandle(readOv.hEvent); stErrorHandler("Error reading, returned instantly but failed."); return false;}
 				}
 			}
 			while(bytesRead>0);
 		}
-		else {CloseHandle(readOv.hEvent); errorHandler("Error reading, error waiting for char."); return false;}		
+		else {CloseHandle(readOv.hEvent); stErrorHandler("Error reading, error waiting for char."); return false;}		
 	}
 
 	CloseHandle(readOv.hEvent);
 	return true;
 }
 
-bool serialClass::serialThreads::bufferReadData(char* data, int byteNum)
+bool serialThreads::bufferReadData(char* data, int byteNum)
 {
 	for(int i=0;i<=byteNum-1;i++)
 	{
@@ -115,12 +101,12 @@ bool serialClass::serialThreads::bufferReadData(char* data, int byteNum)
 	return true;
 }
 
-bool serialClass::serialThreads::writeThreadFn()
+bool serialThreads::writeThreadFn()
 {
 	OVERLAPPED writeOv;
 	memset(&writeOv,0,sizeof(writeOv));
 	writeOv.hEvent=CreateEvent(NULL,true,false,NULL);
-	if(writeOv.hEvent==NULL) {CloseHandle(writeOv.hEvent); errorHandler("Error writing creating ov."); return false;}
+	if(writeOv.hEvent==NULL) {CloseHandle(writeOv.hEvent); stErrorHandler("Error writing creating ov."); return false;}
 
 	while(writeThreadState)
 	{
@@ -147,16 +133,16 @@ bool serialClass::serialThreads::writeThreadFn()
 				{
 					if(WaitForSingleObject(writeOv.hEvent,INFINITE)==WAIT_OBJECT_0)
 					{						
-						if(!GetOverlappedResult(portHandle,&writeOv,&bytesWritten,false)) {CloseHandle(writeOv.hEvent); errorHandler("Error writing, write failed after waiting."); return false;}
+						if(!GetOverlappedResult(portHandle,&writeOv,&bytesWritten,false)) {CloseHandle(writeOv.hEvent); stErrorHandler("Error writing, write failed after waiting GOR."); return false;}
 					}
-					else {CloseHandle(writeOv.hEvent); errorHandler("Error writing, wait failed."); return false;}
+					else {CloseHandle(writeOv.hEvent); stErrorHandler("Error writing, wait failed WFSO."); return false;}
 				}
-				else {CloseHandle(writeOv.hEvent); errorHandler("Error writing, write failed."); return false;}
+				else {CloseHandle(writeOv.hEvent); stErrorHandler("Error writing, write failed GLE."); return false;}
 			}
 			else
 			{
 				lck.unlock();
-				if(!GetOverlappedResult(portHandle,&writeOv,&bytesWritten,false)) {CloseHandle(writeOv.hEvent); errorHandler("Error write returned instantly, write failed."); return false;}
+				if(!GetOverlappedResult(portHandle,&writeOv,&bytesWritten,false)) {CloseHandle(writeOv.hEvent); stErrorHandler("Error write returned instantly, write failed."); return false;}
 			}
 		}
 	}
@@ -165,10 +151,39 @@ bool serialClass::serialThreads::writeThreadFn()
 	return true;
 }
 
-serialClass::serialThreads threadClass;
-
-bool serialClass::init(portSettings ps)
+void serialThreads::stErrorHandler(std::string msg)
 {
+	reportError(msg);
+	wxCommandEvent *evt=new wxCommandEvent(SC_ERROR_EVT,stErrorEvtId);
+	wxQueueEvent(evtHandlePtr,evt);	
+}
+
+void serialThreads::reportError(string msg)
+{
+	wchar_t *errorText=NULL;
+
+	FormatMessage(
+	FORMAT_MESSAGE_FROM_SYSTEM
+	|FORMAT_MESSAGE_ALLOCATE_BUFFER
+	|FORMAT_MESSAGE_IGNORE_INSERTS,
+	NULL,
+	GetLastError(),
+	MAKELANGID(LANG_NEUTRAL,SUBLANG_DEFAULT),
+	(LPTSTR) &errorText,
+	0,
+	NULL);
+
+	errorCode=msg;	
+	spErrorCode=errorText;
+
+	LocalFree(errorText);
+	errorText=NULL;
+}
+
+bool serialClass::init(portSettings ps,wxEvtHandler *evtHandle)
+{
+	serialState=true;
+
 	portHandle=CreateFile
 	(
 		ps.comPort,
@@ -179,12 +194,12 @@ bool serialClass::init(portSettings ps)
 		FILE_FLAG_OVERLAPPED,
 		0
 	);
-	if(portHandle==INVALID_HANDLE_VALUE) {errorHandler("Invalid handle value"); return false;}
+	if(portHandle==INVALID_HANDLE_VALUE) {scErrorHandler("Invalid handle value"); return false;}
 
 	DCB dcb={0};
 	dcb.DCBlength=sizeof(DCB);
 
-	if(!::GetCommState(portHandle,&dcb)) {errorHandler("Error getting comm state"); return false;}
+	if(!::GetCommState(portHandle,&dcb)) {scErrorHandler("Error getting comm state"); return false;}
 
 	dcb.BaudRate=ps.baudRate;
 	dcb.ByteSize=ps.byteSize;
@@ -192,7 +207,7 @@ bool serialClass::init(portSettings ps)
 	dcb.StopBits=ps.stopBits;
 	dcb.fDtrControl=DTR_CONTROL_ENABLE;
 
-	if(!::SetCommState(portHandle,&dcb)) {errorHandler("Error setting comm state"); return false;}
+	if(!::SetCommState(portHandle,&dcb)) {scErrorHandler("Error setting comm state"); return false;}
 
 	COMMTIMEOUTS tOuts={0};
 
@@ -202,19 +217,20 @@ bool serialClass::init(portSettings ps)
 	tOuts.WriteTotalTimeoutConstant=0;
 	tOuts.WriteTotalTimeoutMultiplier=0;
 
-	if(!SetCommTimeouts(portHandle,&tOuts)) {errorHandler("Error setting timeouts"); return false;}
+	if(!SetCommTimeouts(portHandle,&tOuts)) {scErrorHandler("Error setting timeouts"); return false;}
 
-	if(!SetCommMask(portHandle,EV_RXCHAR)) {errorHandler("Error setting comm mask"); return false;}
+	if(!SetCommMask(portHandle,EV_RXCHAR)) {scErrorHandler("Error setting comm mask"); return false;}
 	
-	threadClass.startThreads();
+	startThreads(evtHandle);
 	if(!reset()) return false;
 	return true;
 }
 
 void serialClass::end()
 {
+	serialState=false;
 	CancelIoEx(portHandle,NULL);
-	threadClass.endThreads();
+	endThreads();
     CloseHandle(portHandle);
 }
 
@@ -229,7 +245,7 @@ bool serialClass::write(char* cstr)
 	{
 		writeBuffer[wbwp]=buff[i];
 		if(wbwp>=(tbs-1)) wbwp=0; else wbwp++;
-		threadClass.writeCue++;
+		writeCue++;
 		i++;
 	}
 
@@ -238,56 +254,16 @@ bool serialClass::write(char* cstr)
 
 bool serialClass::reset()
 {
-	if(!EscapeCommFunction(portHandle,CLRDTR)) {errorHandler("Error clearing dtr"); return false;}
-	if(!EscapeCommFunction(portHandle,SETDTR)) {errorHandler("Error setting dtr"); return false;}
+	if(!EscapeCommFunction(portHandle,CLRDTR)) {scErrorHandler("Error clearing dtr"); return false;}
+	if(!EscapeCommFunction(portHandle,SETDTR)) {scErrorHandler("Error setting dtr"); return false;}
 
 	return true;
 }
 
-void serialClass::printBuffer()
-{		
-	while(threadClass.readCue>0)
-	{
-		cout<<readBuffer[rbrp];
-		if(rbrp>=rbs-1) rbrp=0; else rbrp++;
-		threadClass.readCue--;
-	}
-}
-
-BOOL WINAPI CtrlHandler(DWORD fdwCtrlType)
-{
-	if(fdwCtrlType==CTRL_CLOSE_EVENT)
-    {        
-		serialClass sc;
-		sc.end();		
-        return TRUE;
-    }
-}
-
-void errorHandler(string msg)
-{
-	cout<<"Error message: "<<msg<<endl;
-	
-    serialClass sc;
-	sc.end();
-
-    LPTSTR errorText=NULL;
-
-	FormatMessage(
-	FORMAT_MESSAGE_FROM_SYSTEM
-	|FORMAT_MESSAGE_ALLOCATE_BUFFER
-	|FORMAT_MESSAGE_IGNORE_INSERTS,
-	NULL,
-	GetLastError(),
-	MAKELANGID(LANG_NEUTRAL,SUBLANG_DEFAULT),
-	(LPTSTR) &errorText,
-	0,
-	NULL);
-
-	cout<<"GetLastError: ";
-	wcout<<errorText<<endl;
-	LocalFree(errorText);
-	errorText=NULL;
+void serialClass::scErrorHandler(string msg)
+{	    
+	end();
+	reportError(msg);
 }
 
 bool FindComPorts::listComPorts(wstring *portNameList,wstring *portList,int &numPorts,string &error)
