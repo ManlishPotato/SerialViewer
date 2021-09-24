@@ -21,7 +21,7 @@ const int stErrorEvtId=  baseID2+13; //Serial thread error throw evt
 class portSettings
 {
 	public:
-		const wchar_t* comPort=L"COM3";
+		const wchar_t* comPort=L"COM4";
 		DWORD baudRate=9600;
 		BYTE byteSize=8;
 		BYTE parity=NOPARITY;

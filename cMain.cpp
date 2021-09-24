@@ -137,6 +137,7 @@ void cMain::serialConnect(wxCommandEvent &evt)
 	else
 	{
 		//Otherwise end serial
+		//TODO: flush serial buffer before close
 		btnConnect->SetLabel("Disconnected");
 		end();
 		endPrintThr();
@@ -177,8 +178,8 @@ void cMain::updateComPorts()
 
 	if(nPorts<1) 
 	{
-		cbxPort->Append("No com. ports");
-		cbxPort->SetValue("No com. ports");
+		cbxPort->Append("No com. ports"); //Add value to list
+		cbxPort->SetValue("No com. ports"); //Select added value for display
 	}
 	else
 	{
@@ -243,9 +244,10 @@ void printReadBuffer::printThreadFn(wxEvtHandler* evtHandle)
 			char buff[rbs+1]={0};
 			string str; //May be remove later
 			int offset=0; //To accuount for /0 in buffer
+			//TODO: slow read with /r and /0 detection, should be removed in future
 			for(int i=0;i<=cue-1;i++)
 			{
-				if(readBuffer[rbrp]==0) offset++; //Add to offset if there is a 0
+				if(readBuffer[rbrp]==0 || readBuffer[rbrp]=='\r') offset++; //Add to offset if there is a 0
 				else buff[i-offset]=readBuffer[rbrp];
 				if(rbrp>=rbs-1) rbrp=0; else rbrp++;		
 			}
