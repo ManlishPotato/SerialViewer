@@ -1,5 +1,8 @@
 To be Implemented:
 	-Auto clear screen when connecting check box
+	-Transceive text from txtWrite
+		-Back bone of txtWrite
+		-Send string to serialClass to be inserted into the buffer
 
 Bugs to fix:
 	-Pressing "X" in Port Settings window saves settings unlike pressing "Cancel" does. Desirable?

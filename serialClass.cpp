@@ -234,19 +234,18 @@ void serialClass::end()
     CloseHandle(portHandle);
 }
 
-bool serialClass::write(char* cstr)
+bool serialClass::write(string str)
 {
-	char buff[100]={0};
-	strcpy_s(buff,sizeof(buff),cstr);
-	strcat_s(buff,sizeof(buff),">");
+	char buff[tbs]={0};
+	strcpy_s(buff,sizeof(buff),str.c_str());
+	strcat_s(buff,sizeof(buff),">"); //TODO: change for delimiter setting
 
-	int i=0;
-	while(buff[i]!=0) //Not suitable for raw data with 0 in it, only works with strings of text and such with null termination
+	int n=strlen(buff);
+	for(int i=0;i<=n-1;i++)
 	{
 		writeBuffer[wbwp]=buff[i];
 		if(wbwp>=(tbs-1)) wbwp=0; else wbwp++;
 		writeCue++;
-		i++;
 	}
 
 	return true;

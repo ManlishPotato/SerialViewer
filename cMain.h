@@ -7,6 +7,7 @@
 #include <string>
 
 #define baseID 10000
+//TODO: unify IDs and events
 //GUI events
 const int btnConnectId=  baseID+1;
 const int check1Id=	     baseID+2;
@@ -21,7 +22,9 @@ const int listSettingsId=baseID+10;
 const int btnClearId=    baseID+11;
 
 //Custom events
-const int ptWriteEvtId=  baseID2+12; //Print thread write read data evt
+const int ptWriteEvtId= baseID2+12; //Print thread write read data evt
+				   //scErrorEvt 13
+const int txtWriteId=	 baseID+14;
 
 class printReadBuffer : public serialClass
 {
@@ -54,6 +57,7 @@ class cMain : public wxFrame, public printReadBuffer
 		void comPortChange(wxCommandEvent &evt);
 		void serialConnect(wxCommandEvent &evt);
 		void clearReadTxt(wxCommandEvent &evt);
+		void onTxtWriteSend(wxCommandEvent &evt);
 
 		void updateComPorts();
 

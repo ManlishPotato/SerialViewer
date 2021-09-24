@@ -20,6 +20,7 @@ wxBEGIN_EVENT_TABLE(cMain,wxFrame)
 	EVT_COMBOBOX(cboxPortId,comPortChange)
 	EVT_BUTTON(btnConnectId,serialConnect)
 	EVT_BUTTON(btnClearId,clearReadTxt)
+	EVT_TEXT_ENTER(txtWriteId,onTxtWriteSend)
 
 	EVT_COMMAND(ptWriteEvtId,PT_WRITE_EVT,cMain::printReadDataEvt)	
 	EVT_COMMAND(stErrorEvtId,SC_ERROR_EVT,cMain::serialThreadErrorEvt)
@@ -31,7 +32,7 @@ const wxString box3Choice[boxChoiceNum]={"Delim: /n/l","Delim: >"};
 
 cMain::cMain() : wxFrame(nullptr,wxID_ANY,"SerialViewer1.0",wxPoint(30,30),wxSize(650,600))
 {
-	txtWrite=new wxTextCtrl(this,wxID_ANY,"",wxPoint(10,10),wxSize(500,28));
+	txtWrite=new wxTextCtrl(this,txtWriteId,"",wxPoint(10,10),wxSize(500,28),wxTE_PROCESS_ENTER);
 	txtRead=new wxTextCtrl(this,wxID_ANY,"",wxPoint(10,50),wxSize(500,450),wxTE_MULTILINE | wxTE_READONLY);
 	btnConnect=new wxButton(this,btnConnectId,"Connect",wxPoint(520,10),wxSize(100,50));
 	btnClear=new wxButton(this,btnClearId,"Clear",wxPoint(250,505),wxSize(100,25));
@@ -149,6 +150,17 @@ void cMain::clearReadTxt(wxCommandEvent &evt)
 	txtRead->Clear();
 
 	evt.Skip();
+}
+
+void cMain::onTxtWriteSend(wxCommandEvent &evt)
+{
+	string str; //May be removed later
+	str=txtWrite->GetValue();
+	txtWrite->Clear();
+
+	write(str);
+
+	//Absence of evt.Skip() removes the warning bell sound on windows when pressing enter
 }
 
 void cMain::updateComPorts()

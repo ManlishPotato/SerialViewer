@@ -75,7 +75,7 @@ class serialClass : public serialThreads
 	public:
 		bool init(portSettings ps,wxEvtHandler *evtHandle);
 		void end();
-		bool write(char* cstr);
+		bool write(std::string str);
 		bool reset();
 		
 	private:
