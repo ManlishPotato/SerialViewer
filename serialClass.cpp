@@ -180,13 +180,13 @@ void serialThreads::reportError(string msg)
 	errorText=NULL;
 }
 
-bool serialClass::init(portSettings ps,wxEvtHandler *evtHandle)
+bool serialClass::init(portSettings ps,wxEvtHandler *evtHandle,bool doResetMcu)
 {
 	serialState=true;
 
 	portHandle=CreateFile
 	(
-		ps.comPort,
+		&ps.comPort[0],
 		GENERIC_READ | GENERIC_WRITE,
 		0,
 		0,
@@ -222,7 +222,9 @@ bool serialClass::init(portSettings ps,wxEvtHandler *evtHandle)
 	if(!SetCommMask(portHandle,EV_RXCHAR)) {scErrorHandler("Error setting comm mask"); return false;}
 	
 	startThreads(evtHandle);
-	if(!reset()) return false;
+
+	if(doResetMcu) if(!reset()) return false;
+
 	return true;
 }
 
@@ -234,11 +236,11 @@ void serialClass::end()
     CloseHandle(portHandle);
 }
 
-bool serialClass::write(string str)
+bool serialClass::write(string str,char *delim)
 {
 	char buff[tbs]={0};
 	strcpy_s(buff,sizeof(buff),str.c_str());
-	strcat_s(buff,sizeof(buff),">"); //TODO: change for delimiter setting
+	strcat_s(buff,sizeof(buff),delim);
 
 	int n=strlen(buff);
 	for(int i=0;i<=n-1;i++)

@@ -1,6 +1,5 @@
 //TODO: Add debug for readCue and writeCue
 #include "cMain.h"
-#include "windows.h"
 using namespace std;
 
 DeafultPortSettings dps;
@@ -21,26 +20,27 @@ wxBEGIN_EVENT_TABLE(cMain,wxFrame)
 	EVT_BUTTON(btnConnectId,serialConnect)
 	EVT_BUTTON(btnClearId,clearReadTxt)
 	EVT_TEXT_ENTER(txtWriteId,onTxtWriteSend)
+	EVT_CHECKBOX(chkScrollId,chkScrollChange)
 
 	EVT_COMMAND(ptWriteEvtId,PT_WRITE_EVT,cMain::printReadDataEvt)	
 	EVT_COMMAND(stErrorEvtId,SC_ERROR_EVT,cMain::serialThreadErrorEvt)
 wxEND_EVENT_TABLE()
-
-const int boxChoiceNum=2;
-const wxString box1Choice[boxChoiceNum]={"9600","115200"};
-const wxString box3Choice[boxChoiceNum]={"Delim: /n/l","Delim: >"};
 
 cMain::cMain() : wxFrame(nullptr,wxID_ANY,"SerialViewer1.0",wxPoint(30,30),wxSize(650,600))
 {
 	txtWrite=new wxTextCtrl(this,txtWriteId,"",wxPoint(10,10),wxSize(500,28),wxTE_PROCESS_ENTER);
 	txtRead=new wxTextCtrl(this,wxID_ANY,"",wxPoint(10,50),wxSize(500,450),wxTE_MULTILINE | wxTE_READONLY);
 	btnConnect=new wxButton(this,btnConnectId,"Connect",wxPoint(520,10),wxSize(100,50));
-	btnClear=new wxButton(this,btnClearId,"Clear",wxPoint(250,505),wxSize(100,25));
-	cbxBaud=new wxComboBox(this,cboxBaudId,dps.baudRate,wxPoint(515,90),wxSize(110,25),boxChoiceNum,box1Choice);
-	cbxPort=new wxComboBox(this,cboxPortId,"",wxPoint(515,140),wxSize(110,25));
-	cbxDelim=new wxComboBox(this,wxID_ANY,"Delim: /n/l",wxPoint(120,505),wxSize(100,25),boxChoiceNum,box3Choice);
-	chkReset=new wxCheckBox(this,check1Id,"Auto DTR Reset",wxPoint(520,180),wxSize(100,25));
-	chkScroll=new wxCheckBox(this,check2Id,"Auto Scroll",wxPoint(12,505),wxSize(100,25));
+	btnClear=new wxButton(this,btnClearId,"Clear",wxPoint(210,505),wxSize(100,25));
+	cbxBaud=new wxComboBox(this,cboxBaudId,dps.baudRate,wxPoint(515,90),wxSize(110,25),baudRateNum,baudRateCho);
+	cbxPort=new wxComboBox(this,cboxPortId,"",wxPoint(515,140),wxSize(110,25));	
+	chkReset=new wxCheckBox(this,wxID_ANY,"Auto DTR Reset",wxPoint(520,180),wxSize(100,25));
+	chkScroll=new wxCheckBox(this,chkScrollId,"Auto Scroll",wxPoint(12,505),wxSize(80,25));
+	chkClear=new wxCheckBox(this,wxID_ANY,"Auto Clear",wxPoint(110,505),wxSize(80,25));
+
+	chkReset->SetValue(true);
+	chkScroll->SetValue(true);
+	chkClear->SetValue(true);
 
 	updateComPorts();
 
@@ -62,12 +62,13 @@ cMain::~cMain()
 
 void cMain::menuSettings(wxCommandEvent &evt)
 {	
-	settingsDialog sd(wxT("Port Settings"),dps.byteSize,dps.parity,dps.stopBits);
+	settingsDialog sd(wxT("Port Settings"),dps.byteSize,dps.parity,dps.stopBits,dps.delim);
 	if(sd.ShowModal()==wxID_OK)
 	{
-		dps.byteSize=sd.cbox1->GetValue();
-		dps.parity=sd.cbox2->GetValue();
-		dps.stopBits=sd.cbox3->GetValue();		
+		dps.byteSize=sd.cbxByteSize->GetValue();
+		dps.parity=sd.cbxParity->GetValue();
+		dps.stopBits=sd.cbxStopBits->GetValue();
+		dps.delim=sd.cbxDelim->GetValue();
 	}	
 
 	evt.Skip();
@@ -90,11 +91,12 @@ void cMain::menuUpdatePorts(wxCommandEvent &evt)
 void cMain::menuListSettings(wxCommandEvent &evt)
 {
 	txtRead->AppendText("-Current settings-\n");
-	txtRead->AppendText("Port: "+dps.comPort+"\n");
-	txtRead->AppendText("Baud Rate: "+dps.baudRate+"\n");
-	txtRead->AppendText("Byte Size: "+dps.byteSize+"\n");
-	txtRead->AppendText("Parity: "+dps.parity+"\n");
-	txtRead->AppendText("Stop Bits: "+dps.stopBits+"\n");
+	txtRead->AppendText("Port: "+dps.comPort+'\n');
+	txtRead->AppendText("Baud Rate: "+dps.baudRate+'\n');
+	txtRead->AppendText("Byte Size: "+dps.byteSize+'\n');
+	txtRead->AppendText("Parity: "+dps.parity+'\n');
+	txtRead->AppendText("Stop Bits: "+dps.stopBits+'\n');
+	txtRead->AppendText("Delimiter: "+dps.delim+'\n');
 
 	evt.Skip();
 }
@@ -115,30 +117,32 @@ void cMain::comPortChange(wxCommandEvent &evt)
 
 void cMain::serialConnect(wxCommandEvent &evt)
 {
-	portSettings defaultSettings; //Needs to be changed to user settings
+	portSettings pSettings;
+	getUserSettings(pSettings);
 
 	serialState=!serialState;
 	if(serialState)
 	{
-		//Init serial
-		btnConnect->SetLabel("Connected");
-		if(!init(defaultSettings,this))
+		//Init serial		
+		if(!init(pSettings,this,chkReset->GetValue()))
 		{
 			//Error at init
 			showErrorReport();
-			btnConnect->SetLabel("Disconnected");	
+			btnConnect->SetLabel("Connect");	
 		}
 		else
 		{
 			//Otherwise start printing thread
+			btnConnect->SetLabel("Disconnect");
 			startPrintThr(this);
+			if(chkClear->GetValue()) txtRead->Clear();
 		}
 	}
 	else
 	{
 		//Otherwise end serial
 		//TODO: flush serial buffer before close
-		btnConnect->SetLabel("Disconnected");
+		btnConnect->SetLabel("Connect");
 		end();
 		endPrintThr();
 	}
@@ -155,13 +159,22 @@ void cMain::clearReadTxt(wxCommandEvent &evt)
 
 void cMain::onTxtWriteSend(wxCommandEvent &evt)
 {
-	string str; //May be removed later
-	str=txtWrite->GetValue();
+	string dataWrite; 
+	dataWrite=txtWrite->GetValue();
 	txtWrite->Clear();
 
-	write(str);
+	char delimBuff[10];
+	strcpy_s(delimBuff,sizeof(delimBuff),dps.delim.c_str());
+	write(dataWrite,delimBuff);
 
 	//Absence of evt.Skip() removes the warning bell sound on windows when pressing enter
+}
+
+void cMain::chkScrollChange(wxCommandEvent &evt)
+{
+	autoScroll=chkScroll->GetValue();
+
+	evt.Skip();
 }
 
 void cMain::updateComPorts()
@@ -197,8 +210,19 @@ void cMain::updateComPorts()
 
 void cMain::printReadDataEvt(wxCommandEvent &evt)
 {
-	//Print buffer
-	txtRead->AppendText(evt.GetString());
+	if(autoScroll)
+	{
+		txtRead->AppendText(evt.GetString());
+	}
+	else
+	{
+		long pos = ::SendMessage( txtRead->GetHWND(), EM_GETFIRSTVISIBLELINE, 0, 0 );
+
+		txtRead->AppendText(evt.GetString());
+
+		int newpos = ::SendMessage( txtRead->GetHWND(), EM_GETFIRSTVISIBLELINE, 0, 0 );
+		::SendMessage( txtRead->GetHWND(), EM_LINESCROLL, 0, pos-newpos );
+	}
 }
 
 void cMain::serialThreadErrorEvt(wxCommandEvent &evt)
@@ -214,6 +238,26 @@ void cMain::showErrorReport()
 {
 	txtRead->AppendText("\n\nError: "+errorCode+'\n');
 	txtRead->AppendText("Specific error: "+spErrorCode+'\n');
+}
+
+void cMain::getUserSettings(portSettings &ps)
+{	
+	int sizeDest=sizeof(ps.comPort);
+	sizeDest/=2; //For number of wide chars
+	wcscpy_s(ps.comPort,sizeDest,dps.comPort.wc_str());
+
+	if(dps.baudRate==baudRateCho[0]) ps.baudRate=9600;
+	else if(dps.baudRate==baudRateCho[1]) ps.baudRate=115200;
+
+	if(dps.byteSize==byteSizeCho[0]) ps.byteSize=7;
+	else if(dps.byteSize==byteSizeCho[1]) ps.byteSize=8;	
+
+	if(dps.parity==parityCho[0]) ps.parity=NOPARITY;
+	else if(dps.parity==parityCho[1]) ps.parity=EVENPARITY;
+	else if(dps.parity==parityCho[2]) ps.parity=ODDPARITY;
+
+	if(dps.stopBits==stopBitsCho[0]) ps.stopBits=ONESTOPBIT;
+	else if(dps.stopBits==stopBitsCho[1]) ps.stopBits=TWOSTOPBITS;
 }
 
 void printReadBuffer::startPrintThr(wxEvtHandler *evtHandle)

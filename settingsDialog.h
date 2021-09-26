@@ -2,19 +2,29 @@
 
 #include <wx/wx.h>
 
+#define byteSizeNum 2
+#define parityNum 3
+#define stopBitsNum 2
+#define delimNum 2
+const wxString byteSizeCho[byteSizeNum]={"7 bit","8 bit"};
+const wxString parityCho[parityNum]={"None","Even","Odd"};
+const wxString stopBitsCho[stopBitsNum]={"1 bit","2 bit"};
+const wxString delimCho[delimNum]={">","\\n\\r"};
+
 class settingsDialog : public wxDialog
 {
 	public:
-		settingsDialog(const wxString& title,wxString comboByteSize,wxString comboParity,wxString comboStopBits);		
+		settingsDialog(const wxString& title,wxString comboByteSize,wxString comboParity,wxString comboStopBits,wxString comboDelim);
 
-		wxComboBox* cbox1=nullptr;
-		wxComboBox* cbox2=nullptr;
-		wxComboBox* cbox3=nullptr;
+		wxComboBox* cbxByteSize=nullptr;
+		wxComboBox* cbxParity=nullptr;
+		wxComboBox* cbxStopBits=nullptr;
+		wxComboBox* cbxDelim=nullptr;
 
-		wxButton* btn1=nullptr;
-		wxButton* btn2=nullptr;
+		wxButton* btnOk=nullptr;
+		wxButton* btnCancel=nullptr;
 				
-		void buttonCancel(wxCommandEvent &evt);
+		void onBtnCancel(wxCommandEvent &evt);
 		wxDECLARE_EVENT_TABLE();
 };
 

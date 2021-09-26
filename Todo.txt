@@ -1,8 +1,13 @@
-To be Implemented:
-	-Auto clear screen when connecting check box
-	-Transceive text from txtWrite
-		-Back bone of txtWrite
-		-Send string to serialClass to be inserted into the buffer
+To be Implemented:		
+	-Finish ui look
+		-Size correction
+		-Font
+		-Read only
+		-Put labels on boxes
+	-Gray out unavailable ui when connected
+	-Info corner
+		-Connected status
+		-Debug info
 
 Bugs to fix:
 	-Pressing "X" in Port Settings window saves settings unlike pressing "Cancel" does. Desirable?

@@ -11,7 +11,7 @@
 
 //Custom events
 #define baseID2 10000
-const int stErrorEvtId=  baseID2+13; //Serial thread error throw evt
+const int stErrorEvtId=  baseID2+10; //Serial thread error throw evt
 
 //Buffer size standards
 #define rbs 256
@@ -21,7 +21,7 @@ const int stErrorEvtId=  baseID2+13; //Serial thread error throw evt
 class portSettings
 {
 	public:
-		const wchar_t* comPort=L"COM4";
+		wchar_t comPort[32]=L"COM3";
 		DWORD baudRate=9600;
 		BYTE byteSize=8;
 		BYTE parity=NOPARITY;
@@ -73,9 +73,9 @@ class serialThreads
 class serialClass : public serialThreads
 {	
 	public:
-		bool init(portSettings ps,wxEvtHandler *evtHandle);
+		bool init(portSettings ps,wxEvtHandler *evtHandle,bool doResetMcu);
 		void end();
-		bool write(std::string str);
+		bool write(std::string str,char *delim);
 		bool reset();
 		
 	private:
