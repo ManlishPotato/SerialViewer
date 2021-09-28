@@ -79,7 +79,7 @@ class cMain : public wxFrame, public printReadBuffer
 		wxComboBox* cbxPort=nullptr;		
 		wxCheckBox* chkReset=nullptr;
 		wxCheckBox* chkScroll=nullptr;
-		wxCheckBox *chkClear=nullptr;
+		wxCheckBox *chkClear=nullptr;		
 		
 		wxMenuBar* menubar;
 		wxMenu* file;

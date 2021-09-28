@@ -26,17 +26,78 @@ wxBEGIN_EVENT_TABLE(cMain,wxFrame)
 	EVT_COMMAND(stErrorEvtId,SC_ERROR_EVT,cMain::serialThreadErrorEvt)
 wxEND_EVENT_TABLE()
 
-cMain::cMain() : wxFrame(nullptr,wxID_ANY,"SerialViewer1.0",wxPoint(30,30),wxSize(650,600))
-{
-	txtWrite=new wxTextCtrl(this,txtWriteId,"",wxPoint(10,10),wxSize(500,28),wxTE_PROCESS_ENTER);
-	txtRead=new wxTextCtrl(this,wxID_ANY,"",wxPoint(10,50),wxSize(500,450),wxTE_MULTILINE | wxTE_READONLY);
-	btnConnect=new wxButton(this,btnConnectId,"Connect",wxPoint(520,10),wxSize(100,50));
-	btnClear=new wxButton(this,btnClearId,"Clear",wxPoint(210,505),wxSize(100,25));
-	cbxBaud=new wxComboBox(this,cboxBaudId,dps.baudRate,wxPoint(515,90),wxSize(110,25),baudRateNum,baudRateCho);
-	cbxPort=new wxComboBox(this,cboxPortId,"",wxPoint(515,140),wxSize(110,25));	
-	chkReset=new wxCheckBox(this,wxID_ANY,"Auto DTR Reset",wxPoint(520,180),wxSize(100,25));
-	chkScroll=new wxCheckBox(this,chkScrollId,"Auto Scroll",wxPoint(12,505),wxSize(80,25));
-	chkClear=new wxCheckBox(this,wxID_ANY,"Auto Clear",wxPoint(110,505),wxSize(80,25));
+cMain::cMain() : wxFrame(nullptr,wxID_ANY,"SerialViewer2.0",wxPoint(30,30),wxSize(650,600))
+{			
+	wxColour secondaryColour1=wxColour(40,44,52);
+	wxColour secondaryColour2=wxColour(64,72,89);
+	wxColour txtColour1=wxColour(255,255,255);
+
+	wxPanel *topBar=new wxPanel(this,wxID_ANY,wxDefaultPosition,wxDefaultSize);
+	topBar->SetBackgroundColour(secondaryColour1);
+	wxPanel *mainPanel=new wxPanel(this,wxID_ANY,wxDefaultPosition,wxDefaultSize);
+	mainPanel->SetBackgroundColour(secondaryColour1);
+	wxPanel *sideBar=new wxPanel(this,wxID_ANY,wxDefaultPosition,wxDefaultSize);
+	sideBar->SetBackgroundColour(secondaryColour1);
+	wxPanel *bottomBar=new wxPanel(this,wxID_ANY,wxDefaultPosition,wxDefaultSize);
+	bottomBar->SetBackgroundColour(secondaryColour1);
+
+	wxSizer *leftGroupSz=new wxBoxSizer(wxVERTICAL);
+	leftGroupSz->Add(topBar,0,wxEXPAND | wxALL,5);
+	leftGroupSz->Add(mainPanel,1,wxEXPAND | wxLEFT | wxBOTTOM | wxRIGHT,5);
+
+	wxSizer *mainGroupSz=new wxBoxSizer(wxHORIZONTAL);
+	mainGroupSz->Add(leftGroupSz,1,wxEXPAND,0);
+	mainGroupSz->Add(sideBar,0,wxEXPAND | wxTOP | wxRIGHT | wxBOTTOM,5);
+
+	wxBoxSizer *allSz=new wxBoxSizer(wxVERTICAL);
+	allSz->Add(mainGroupSz,1,wxEXPAND,0);
+	allSz->Add(bottomBar,0,wxEXPAND | wxLEFT | wxBOTTOM | wxRIGHT,5);
+	
+	txtWrite=new wxTextCtrl(topBar,txtWriteId,"",wxDefaultPosition,wxDefaultSize,wxTE_PROCESS_ENTER);
+	txtWrite->SetBackgroundColour(secondaryColour2);
+	txtWrite->SetForegroundColour(txtColour1);
+	wxSizer *txtWriteSz=new wxBoxSizer(wxVERTICAL);
+	txtWriteSz->Add(txtWrite,0,wxEXPAND | wxTOP | wxBOTTOM,5);
+	topBar->SetSizerAndFit(txtWriteSz);
+
+	txtRead=new wxTextCtrl(mainPanel,wxID_ANY,"",wxDefaultPosition,wxSize(500,450),wxTE_MULTILINE | wxTE_READONLY);
+	txtRead->SetBackgroundColour(secondaryColour2);
+	txtRead->SetForegroundColour(txtColour1);
+	wxSizer *txtReadSz=new wxBoxSizer(wxVERTICAL);
+	txtReadSz->Add(txtRead,1,wxEXPAND,0);
+	mainPanel->SetSizer(txtReadSz);
+
+	btnConnect=new wxButton(sideBar,btnConnectId,"Connect",wxDefaultPosition,wxSize(100,50));
+	cbxBaud=new wxComboBox(sideBar,cboxBaudId,dps.baudRate,wxDefaultPosition,wxSize(110,25),baudRateNum,baudRateCho);
+	cbxPort=new wxComboBox(sideBar,cboxPortId,"",wxDefaultPosition,wxSize(110,25));
+	chkReset=new wxCheckBox(sideBar,wxID_ANY,"Auto DTR Reset",wxDefaultPosition,wxSize(100,25));
+	chkReset->SetForegroundColour(txtColour1);
+	wxSizer *mainSettSz=new wxBoxSizer(wxVERTICAL);
+	mainSettSz->Add(btnConnect,0,wxEXPAND | wxBOTTOM,10);
+	mainSettSz->Add(cbxBaud,0,wxEXPAND | wxTOP | wxBOTTOM,10);
+	mainSettSz->Add(cbxPort,0,wxEXPAND | wxTOP | wxBOTTOM,10);
+	mainSettSz->Add(chkReset,0,wxEXPAND | wxTOP | wxBOTTOM,10);
+
+	wxSizer *sideBarSz=new wxBoxSizer(wxVERTICAL);
+	sideBarSz->Add(mainSettSz,1,wxEXPAND | wxALL,5);
+	sideBar->SetSizerAndFit(sideBarSz);
+
+	btnClear=new wxButton(bottomBar,btnClearId,"Clear",wxDefaultPosition,wxSize(100,25));	
+	chkScroll=new wxCheckBox(bottomBar,chkScrollId,"Auto Scroll",wxDefaultPosition,wxSize(80,25));
+	chkClear=new wxCheckBox(bottomBar,wxID_ANY,"Auto Clear",wxDefaultPosition,wxSize(80,25));
+	chkScroll->SetForegroundColour(txtColour1);
+	chkClear->SetForegroundColour(txtColour1);
+	wxSizer *otherSettSz=new wxBoxSizer(wxHORIZONTAL);
+	otherSettSz->Add(btnClear,0,wxEXPAND | wxALL,5);
+	otherSettSz->Add(chkScroll,0,wxEXPAND | wxALL,5);
+	otherSettSz->Add(chkClear,0,wxEXPAND | wxALL,5);
+
+	wxSizer *bottomBarSz=new wxBoxSizer(wxHORIZONTAL);
+	bottomBarSz->Add(otherSettSz,1,wxALIGN_LEFT,0);
+	bottomBar->SetSizerAndFit(bottomBarSz);	
+
+	this->SetSizer(allSz);
+	this->SetMinSize(wxSize(400,300));	
 
 	chkReset->SetValue(true);
 	chkScroll->SetValue(true);
@@ -76,7 +137,7 @@ void cMain::menuSettings(wxCommandEvent &evt)
 
 void cMain::menuAbout(wxCommandEvent &evt)
 {
-	wxMessageBox(wxT("SerialViewer version 1.0\nDevolped by Benjamin Solar."));
+	wxMessageBox(wxT("SerialViewer version 2.0\nDeveloped by Benjamin Solar."));
 
 	evt.Skip();
 }
