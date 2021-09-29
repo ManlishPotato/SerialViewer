@@ -1,13 +1,9 @@
 To be Implemented:		
-	-Finish ui look
-		-Size correction
+	-Finish ui look		
 		-Font
 		-Read only
 		-Put labels on boxes
 	-Gray out unavailable ui when connected
-	-Info corner
-		-Connected status
-		-Debug info
 
 Bugs to fix:
 	-Pressing "X" in Port Settings window saves settings unlike pressing "Cancel" does. Desirable?

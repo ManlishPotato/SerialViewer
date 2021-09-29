@@ -26,6 +26,7 @@ const int ptWriteEvtId= baseID2+9; //Print thread write read data evt
 		//stErrorEvt    baseID2+10;
 const int txtWriteId=	 baseID+11;
 const int chkScrollId=   baseID+12;
+const int tlaConnectedId=baseID+13;
 
 class printReadBuffer : public serialClass
 {
@@ -69,6 +70,9 @@ class cMain : public wxFrame, public printReadBuffer
 	private:
 		void showErrorReport();
 		void getUserSettings(portSettings &ps);
+		void uiConnected();
+		void uiDisconnected();
+		void uiError();
 		
 	public:
 		wxTextCtrl* txtWrite=nullptr;
@@ -79,13 +83,21 @@ class cMain : public wxFrame, public printReadBuffer
 		wxComboBox* cbxPort=nullptr;		
 		wxCheckBox* chkReset=nullptr;
 		wxCheckBox* chkScroll=nullptr;
-		wxCheckBox *chkClear=nullptr;		
+		wxCheckBox *chkClear=nullptr;
+		wxStaticText *tlaConnected=nullptr;
 		
 		wxMenuBar* menubar;
 		wxMenu* file;
 
 	private:
 		bool autoScroll=true;
+
+		wxColour secondaryColour1=wxColour(40,44,52); //Panel colour - dark 
+		wxColour secondaryColour2=wxColour(64,72,89); //Text box colour - light dark
+		wxColour txtColour1=wxColour(255,255,255); //White text colour
+		wxColour txtColour2=wxColour(170,170,170); //Dark/gray white text colour
+		wxColour txtColour3=wxColour(0,255,0); //Bright green text colour
+		wxColour txtColour4=wxColour(255,0,0); //Red text colour
 };
 
 class DeafultPortSettings
