@@ -87,17 +87,20 @@ class cMain : public wxFrame, public printReadBuffer
 		wxStaticText *tlaConnected=nullptr;
 		
 		wxMenuBar* menubar;
-		wxMenu* file;
+		wxMenu* file;		
 
 	private:
 		bool autoScroll=true;
 
+		wxFont font1=wxFont(12,wxFONTFAMILY_TELETYPE,wxFONTSTYLE_NORMAL,wxFONTWEIGHT_NORMAL);
+		wxFont font2=wxFont(14,wxFONTFAMILY_MODERN,wxFONTSTYLE_NORMAL,wxFONTWEIGHT_HEAVY);
+
 		wxColour secondaryColour1=wxColour(40,44,52); //Panel colour - dark 
 		wxColour secondaryColour2=wxColour(64,72,89); //Text box colour - light dark
-		wxColour txtColour1=wxColour(255,255,255); //White text colour
+		wxColour txtColour1=*wxWHITE; //White text colour
 		wxColour txtColour2=wxColour(170,170,170); //Dark/gray white text colour
-		wxColour txtColour3=wxColour(0,255,0); //Bright green text colour
-		wxColour txtColour4=wxColour(255,0,0); //Red text colour
+		wxColour txtColour3=*wxGREEN; //Bright green text colour
+		wxColour txtColour4=*wxRED; //Red text colour
 };
 
 class DeafultPortSettings

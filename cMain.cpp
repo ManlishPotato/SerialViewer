@@ -26,7 +26,7 @@ wxBEGIN_EVENT_TABLE(cMain,wxFrame)
 	EVT_COMMAND(stErrorEvtId,SC_ERROR_EVT,cMain::serialThreadErrorEvt)
 wxEND_EVENT_TABLE()
 
-cMain::cMain() : wxFrame(nullptr,wxID_ANY,"SerialViewer2.0",wxPoint(30,30),wxSize(650,600))
+cMain::cMain() : wxFrame(nullptr,wxID_ANY,"SerialViewer2.0",wxPoint(30,30),wxSize(850,800))
 {			
 	wxPanel *topBar=new wxPanel(this,wxID_ANY,wxDefaultPosition,wxDefaultSize);
 	topBar->SetBackgroundColour(secondaryColour1);
@@ -52,11 +52,13 @@ cMain::cMain() : wxFrame(nullptr,wxID_ANY,"SerialViewer2.0",wxPoint(30,30),wxSiz
 	txtWrite=new wxTextCtrl(topBar,txtWriteId,"",wxDefaultPosition,wxDefaultSize,wxTE_PROCESS_ENTER);
 	txtWrite->SetBackgroundColour(secondaryColour2);
 	txtWrite->SetForegroundColour(txtColour1);
+	txtWrite->SetFont(font2);
 	wxSizer *txtWriteSz=new wxBoxSizer(wxVERTICAL);
 	txtWriteSz->Add(txtWrite,0,wxEXPAND | wxTOP | wxBOTTOM,5);
 	topBar->SetSizerAndFit(txtWriteSz);
 
 	txtRead=new wxTextCtrl(mainPanel,wxID_ANY,"",wxDefaultPosition,wxSize(500,450),wxTE_MULTILINE | wxTE_READONLY);
+	txtRead->SetFont(font1);
 	txtRead->SetBackgroundColour(secondaryColour2);
 	txtRead->SetForegroundColour(txtColour1);
 	wxSizer *txtReadSz=new wxBoxSizer(wxVERTICAL);
@@ -64,31 +66,35 @@ cMain::cMain() : wxFrame(nullptr,wxID_ANY,"SerialViewer2.0",wxPoint(30,30),wxSiz
 	mainPanel->SetSizer(txtReadSz);
 
 	btnConnect=new wxButton(sideBar,btnConnectId,"Connect",wxDefaultPosition,wxSize(100,50));
-	cbxBaud=new wxComboBox(sideBar,cboxBaudId,dps.baudRate,wxDefaultPosition,wxSize(110,25),baudRateNum,baudRateCho,wxCB_READONLY);
-	cbxPort=new wxComboBox(sideBar,cboxPortId,"",wxDefaultPosition,wxSize(110,25));
+	cbxBaud=new wxComboBox(sideBar,cboxBaudId,dps.baudRate,wxDefaultPosition,wxSize(130,25),baudRateNum,baudRateCho,wxCB_READONLY);
+	cbxPort=new wxComboBox(sideBar,cboxPortId,"",wxDefaultPosition,wxSize(130,25));
 	chkReset=new wxCheckBox(sideBar,wxID_ANY,"Auto DTR Reset",wxDefaultPosition,wxSize(100,25));
+	wxStaticText *tlaBaud=new wxStaticText(sideBar,wxID_ANY,"Baud Rate",wxDefaultPosition,wxDefaultSize);
+	wxStaticText *tlaPort=new wxStaticText(sideBar,wxID_ANY,"Port Select",wxDefaultPosition,wxDefaultSize);
+	tlaBaud->SetForegroundColour(txtColour1);
+	tlaPort->SetForegroundColour(txtColour1);
 	chkReset->SetForegroundColour(txtColour1);	
-	wxSizer *mainSettSz=new wxBoxSizer(wxVERTICAL);
+	wxSizer *mainSettSz=new wxBoxSizer(wxVERTICAL);	
 	mainSettSz->Add(btnConnect,0,wxEXPAND | wxBOTTOM,10);
-	mainSettSz->Add(cbxBaud,0,wxEXPAND | wxTOP | wxBOTTOM,10);
-	mainSettSz->Add(cbxPort,0,wxEXPAND | wxTOP | wxBOTTOM,10);
+	mainSettSz->Add(tlaBaud,0,wxEXPAND,0);
+	mainSettSz->Add(cbxBaud,0,wxEXPAND | wxBOTTOM,10);
+	mainSettSz->Add(tlaPort,0,wxEXPAND,0);
+	mainSettSz->Add(cbxPort,0,wxEXPAND | wxBOTTOM,10);
 	mainSettSz->Add(chkReset,0,wxEXPAND | wxTOP | wxBOTTOM,10);
 
-	tlaConnected=new wxStaticText(sideBar,tlaConnectedId,"Unconnected",wxDefaultPosition,wxDefaultSize,wxALIGN_CENTER_HORIZONTAL);
-	tlaConnected->SetForegroundColour(txtColour2);
-	wxSizer *tlaConnectedSz=new wxBoxSizer(wxVERTICAL);
-	tlaConnectedSz->Add(tlaConnected,0,wxEXPAND | wxALL,5);
+	tlaConnected=new wxStaticText(sideBar,tlaConnectedId,"Unconnected",wxDefaultPosition,wxDefaultSize,wxALIGN_CENTER_HORIZONTAL | wxST_NO_AUTORESIZE);
+	tlaConnected->SetForegroundColour(txtColour2);	
 	wxSizer *tlaConnectedAlignSz=new wxBoxSizer(wxHORIZONTAL);
-	tlaConnectedAlignSz->Add(tlaConnectedSz,1,wxALIGN_BOTTOM,0);
+	tlaConnectedAlignSz->Add(tlaConnected,1,wxALIGN_BOTTOM,0);
 
 	wxSizer *sideBarSz=new wxBoxSizer(wxVERTICAL);
-	sideBarSz->Add(mainSettSz,1,wxEXPAND | wxALL,5);
-	sideBarSz->Add(tlaConnectedAlignSz,1,wxALIGN_CENTER,0);
+	sideBarSz->Add(mainSettSz,1,wxEXPAND | wxLEFT | wxTOP | wxRIGHT,5);
+	sideBarSz->Add(tlaConnectedAlignSz,0,wxEXPAND,0);
 	sideBar->SetSizerAndFit(sideBarSz);
 
-	btnClear=new wxButton(bottomBar,btnClearId,"Clear",wxDefaultPosition,wxSize(100,25));	
-	chkScroll=new wxCheckBox(bottomBar,chkScrollId,"Auto Scroll",wxDefaultPosition,wxSize(80,25));
-	chkClear=new wxCheckBox(bottomBar,wxID_ANY,"Auto Clear",wxDefaultPosition,wxSize(80,25));
+	btnClear=new wxButton(bottomBar,btnClearId,"Clear",wxDefaultPosition,wxDefaultSize);	
+	chkScroll=new wxCheckBox(bottomBar,chkScrollId,"Auto Scroll",wxDefaultPosition,wxDefaultSize);
+	chkClear=new wxCheckBox(bottomBar,wxID_ANY,"Auto Clear",wxDefaultPosition,wxDefaultSize);
 	chkScroll->SetForegroundColour(txtColour1);
 	chkClear->SetForegroundColour(txtColour1);
 	wxSizer *otherSettSz=new wxBoxSizer(wxHORIZONTAL);
@@ -101,7 +107,7 @@ cMain::cMain() : wxFrame(nullptr,wxID_ANY,"SerialViewer2.0",wxPoint(30,30),wxSiz
 	bottomBar->SetSizerAndFit(bottomBarSz);	
 
 	this->SetSizer(allSz);
-	this->SetMinSize(wxSize(400,300));	
+	this->SetMinSize(wxSize(350,360));
 
 	chkReset->SetValue(true);
 	chkScroll->SetValue(true);
@@ -331,6 +337,7 @@ void cMain::uiConnected()
 
 	tlaConnected->SetLabel("Connected");
 	tlaConnected->SetForegroundColour(txtColour3);
+	tlaConnected->Refresh();
 
 	//TODO: Disable menu items
 	cbxPort->Enable(false);
@@ -343,8 +350,9 @@ void cMain::uiDisconnected()
 {
 	btnConnect->SetLabel("Connect");
 
-	tlaConnected->SetLabel("Disconnected");
+	tlaConnected->SetLabel("Unconnected");
 	tlaConnected->SetForegroundColour(txtColour2);
+	tlaConnected->Refresh();
 
 	cbxPort->Enable(true);
 	cbxBaud->Enable(true);
@@ -356,8 +364,9 @@ void cMain::uiError()
 {
 	btnConnect->SetLabel("Connect");
 
-	tlaConnected->SetLabel("Disconnected");
+	tlaConnected->SetLabel("Error disconnected");
 	tlaConnected->SetForegroundColour(txtColour4);
+	tlaConnected->Refresh();
 
 	cbxPort->Enable(true);
 	cbxBaud->Enable(true);
