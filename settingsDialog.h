@@ -2,6 +2,9 @@
 
 #include <wx/wx.h>
 
+#define baseID 10000
+const int btnOkId=baseID+14;
+
 #define byteSizeNum 2
 #define parityNum 3
 #define stopBitsNum 2
@@ -24,6 +27,7 @@ class settingsDialog : public wxDialog
 		wxButton* btnOk=nullptr;
 		wxButton* btnCancel=nullptr;
 				
+		void onBtnOk(wxCommandEvent &evt);
 		void onBtnCancel(wxCommandEvent &evt);
 		wxDECLARE_EVENT_TABLE();
 };

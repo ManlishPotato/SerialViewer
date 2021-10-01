@@ -52,13 +52,13 @@ cMain::cMain() : wxFrame(nullptr,wxID_ANY,"SerialViewer2.0",wxPoint(30,30),wxSiz
 	txtWrite=new wxTextCtrl(topBar,txtWriteId,"",wxDefaultPosition,wxDefaultSize,wxTE_PROCESS_ENTER);
 	txtWrite->SetBackgroundColour(secondaryColour2);
 	txtWrite->SetForegroundColour(txtColour1);
-	txtWrite->SetFont(font2);
+	txtWrite->SetFont(font1);
 	wxSizer *txtWriteSz=new wxBoxSizer(wxVERTICAL);
 	txtWriteSz->Add(txtWrite,0,wxEXPAND | wxTOP | wxBOTTOM,5);
 	topBar->SetSizerAndFit(txtWriteSz);
 
 	txtRead=new wxTextCtrl(mainPanel,wxID_ANY,"",wxDefaultPosition,wxSize(500,450),wxTE_MULTILINE | wxTE_READONLY);
-	txtRead->SetFont(font1);
+	txtRead->SetFont(font2);
 	txtRead->SetBackgroundColour(secondaryColour2);
 	txtRead->SetForegroundColour(txtColour1);
 	wxSizer *txtReadSz=new wxBoxSizer(wxVERTICAL);
@@ -134,7 +134,7 @@ cMain::~cMain()
 void cMain::menuSettings(wxCommandEvent &evt)
 {	
 	settingsDialog sd(wxT("Port Settings"),dps.byteSize,dps.parity,dps.stopBits,dps.delim);
-	if(sd.ShowModal()==wxID_OK)
+	if(sd.ShowModal()==btnOkId)
 	{
 		dps.byteSize=sd.cbxByteSize->GetValue();
 		dps.parity=sd.cbxParity->GetValue();
@@ -194,8 +194,9 @@ void cMain::serialConnect(wxCommandEvent &evt)
 	serialState=!serialState;
 	if(serialState)
 	{
-		//Init serial		
-		if(!init(pSettings,this,chkReset->GetValue()))
+		//Init serial
+		bool doReset=chkReset->GetValue(); //TODO: May possibly be removed
+		if(!init(pSettings,this,doReset))
 		{
 			//Error at init
 			showErrorReport();
@@ -398,9 +399,11 @@ void printReadBuffer::printThreadFn(wxEvtHandler* evtHandle)
 	{
 		if(readCue)
 		{
+			//TODO: move this to serialClass?
+
 			int cue=readCue;
 			char buff[rbs+1]={0};
-			string str; //May be remove later
+			string str; //TODO: May be remove later
 			int offset=0; //To accuount for /0 in buffer
 			//TODO: slow read with /r and /0 detection, should be removed in future
 			for(int i=0;i<=cue-1;i++)

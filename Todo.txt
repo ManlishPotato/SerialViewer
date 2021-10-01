@@ -1,6 +1,5 @@
 To be Implemented:		
-	-Finish ui look		
-		-Font			
+	-Unify IDs
 
 Bugs to fix:
-	-Pressing "X" in Port Settings window saves settings unlike pressing "Cancel" does. Desirable?
+	-MCU reset even when auto dtr reset is turned off

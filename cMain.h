@@ -23,10 +23,11 @@ const int listSettingsId=baseID+7;
 const int btnClearId=    baseID+8;
 
 const int ptWriteEvtId= baseID2+9; //Print thread write read data evt
-		//stErrorEvt    baseID2+10;
+	    //stErrorEvt=   baseID2+10;
 const int txtWriteId=	 baseID+11;
 const int chkScrollId=   baseID+12;
 const int tlaConnectedId=baseID+13;
+		//btnOkId=		 baseID+14;
 
 class printReadBuffer : public serialClass
 {
@@ -93,7 +94,7 @@ class cMain : public wxFrame, public printReadBuffer
 		bool autoScroll=true;
 
 		wxFont font1=wxFont(12,wxFONTFAMILY_TELETYPE,wxFONTSTYLE_NORMAL,wxFONTWEIGHT_NORMAL);
-		wxFont font2=wxFont(14,wxFONTFAMILY_MODERN,wxFONTSTYLE_NORMAL,wxFONTWEIGHT_HEAVY);
+		wxFont font2=wxFont(12,wxFONTFAMILY_TELETYPE,wxFONTSTYLE_NORMAL,wxFONTWEIGHT_NORMAL);
 
 		wxColour secondaryColour1=wxColour(40,44,52); //Panel colour - dark 
 		wxColour secondaryColour2=wxColour(64,72,89); //Text box colour - light dark
@@ -108,7 +109,7 @@ class DeafultPortSettings
 	public:
 		wxString comPort="COM3";
 		wxString baudRate="9600";
-		wxString byteSize="8 bits";
+		wxString byteSize="8 bit";
 		wxString parity="None";
 		wxString stopBits="1 bit";
 		wxString delim=">";
