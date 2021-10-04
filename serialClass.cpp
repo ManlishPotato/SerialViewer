@@ -1,8 +1,6 @@
 #include "serialClass.h"
 using namespace std;
 
-HANDLE portHandle; //Handle for the comm port
-
 wxDECLARE_EVENT(SC_ERROR_EVT,wxCommandEvent);
 
 void serialThreads::startThreads(wxEvtHandler *evtHandle)
@@ -34,7 +32,7 @@ bool serialThreads::readThreadFn()
 {		
 	OVERLAPPED readOv={0};
 	readOv.hEvent=CreateEvent(NULL,true,false,NULL);
-	if(readOv.hEvent==NULL) {CloseHandle(readOv.hEvent); stErrorHandler("Error creating read event handle"); return false;}
+	if(readOv.hEvent==NULL) {stErrorHandler("Error creating read event handle"); return false;}
 
 	DWORD evMask=0;
 
@@ -49,8 +47,7 @@ bool serialThreads::readThreadFn()
 			{
 				bytesRead=0;
 				char dataInBuff[100]={0};
-
-				bool state=false;
+				
 				unique_lock<mutex> lck(classMutex);					
 				if(!ReadFile(portHandle,dataInBuff,sizeof(dataInBuff),NULL,&readOv))
 				{
@@ -106,7 +103,7 @@ bool serialThreads::writeThreadFn()
 	OVERLAPPED writeOv;
 	memset(&writeOv,0,sizeof(writeOv));
 	writeOv.hEvent=CreateEvent(NULL,true,false,NULL);
-	if(writeOv.hEvent==NULL) {CloseHandle(writeOv.hEvent); stErrorHandler("Error writing creating ov."); return false;}
+	if(writeOv.hEvent==NULL) {stErrorHandler("Error writing creating ov."); return false;}
 
 	while(writeThreadState)
 	{
@@ -122,8 +119,7 @@ bool serialThreads::writeThreadFn()
 				if(wbrp>=tbs-1) wbrp=0; else wbrp++;
 			}
 			writeCue-=wc;
-
-			bool state=false;
+			
 			unique_lock<mutex> lck(classMutex);								
 			if(!WriteFile(portHandle,dataOutBuffer,wc,&bytesWritten,&writeOv))
 			{
@@ -154,7 +150,7 @@ bool serialThreads::writeThreadFn()
 void serialThreads::stErrorHandler(std::string msg)
 {
 	reportError(msg);
-	wxCommandEvent *evt=new wxCommandEvent(SC_ERROR_EVT,stErrorEvtId);
+	wxCommandEvent *evt=new wxCommandEvent(SC_ERROR_EVT,scErrorEvtId);
 	wxQueueEvent(evtHandlePtr,evt);	
 }
 
@@ -230,20 +226,23 @@ bool serialClass::init(portSettings ps,wxEvtHandler *evtHandle,bool doResetMcu)
 
 void serialClass::end()
 {
-	serialState=false;
-	CancelIoEx(portHandle,NULL);
-	endThreads();
-    CloseHandle(portHandle);
+	if(serialState)
+	{
+		serialState=false;
+		CancelIoEx(portHandle,NULL);
+		endThreads();
+		CloseHandle(portHandle);
+	}
 }
 
 bool serialClass::write(string str,char *delim)
 {
 	char buff[tbs]={0};
-	strcpy_s(buff,sizeof(buff),str.c_str());
-	strcat_s(buff,sizeof(buff),delim);
+	strcpy_s(buff,255,str.c_str());
+	strcat_s(buff,255,delim);
 
 	int n=strlen(buff);
-	for(int i=0;i<=n-1;i++)
+	for(int i=0;i<n;i++)
 	{
 		writeBuffer[wbwp]=buff[i];
 		if(wbwp>=(tbs-1)) wbwp=0; else wbwp++;

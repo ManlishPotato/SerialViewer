@@ -2,6 +2,7 @@
 #include "cMain.h"
 using namespace std;
 
+//TODO: remove this
 DeafultPortSettings dps;
 
 wxDECLARE_EVENT(PT_WRITE_EVT,wxCommandEvent); //Print thread write event
@@ -10,24 +11,8 @@ wxDECLARE_EVENT(SC_ERROR_EVT,wxCommandEvent); //Serial thread error event
 wxDEFINE_EVENT(PT_WRITE_EVT,wxCommandEvent);
 wxDEFINE_EVENT(SC_ERROR_EVT,wxCommandEvent);
 
-wxBEGIN_EVENT_TABLE(cMain,wxFrame)
-	EVT_MENU(settingsId,menuSettings)
-	EVT_MENU(aboutId,menuAbout)
-	EVT_MENU(updatePortsId,menuUpdatePorts)
-	EVT_MENU(listSettingsId,menuListSettings)
-	EVT_COMBOBOX(cboxBaudId,baudChange)
-	EVT_COMBOBOX(cboxPortId,comPortChange)
-	EVT_BUTTON(btnConnectId,serialConnect)
-	EVT_BUTTON(btnClearId,clearReadTxt)
-	EVT_TEXT_ENTER(txtWriteId,onTxtWriteSend)
-	EVT_CHECKBOX(chkScrollId,chkScrollChange)
-
-	EVT_COMMAND(ptWriteEvtId,PT_WRITE_EVT,cMain::printReadDataEvt)	
-	EVT_COMMAND(stErrorEvtId,SC_ERROR_EVT,cMain::serialThreadErrorEvt)
-wxEND_EVENT_TABLE()
-
 cMain::cMain() : wxFrame(nullptr,wxID_ANY,"SerialViewer2.0",wxPoint(30,30),wxSize(850,800))
-{			
+{	
 	wxPanel *topBar=new wxPanel(this,wxID_ANY,wxDefaultPosition,wxDefaultSize);
 	topBar->SetBackgroundColour(secondaryColour1);
 	wxPanel *mainPanel=new wxPanel(this,wxID_ANY,wxDefaultPosition,wxDefaultSize);
@@ -49,7 +34,7 @@ cMain::cMain() : wxFrame(nullptr,wxID_ANY,"SerialViewer2.0",wxPoint(30,30),wxSiz
 	allSz->Add(mainGroupSz,1,wxEXPAND,0);
 	allSz->Add(bottomBar,0,wxEXPAND | wxLEFT | wxBOTTOM | wxRIGHT,5);
 	
-	txtWrite=new wxTextCtrl(topBar,txtWriteId,"",wxDefaultPosition,wxDefaultSize,wxTE_PROCESS_ENTER);
+	txtWrite=new wxTextCtrl(topBar,wxID_ANY,"",wxDefaultPosition,wxDefaultSize,wxTE_PROCESS_ENTER);
 	txtWrite->SetBackgroundColour(secondaryColour2);
 	txtWrite->SetForegroundColour(txtColour1);
 	txtWrite->SetFont(font1);
@@ -65,9 +50,9 @@ cMain::cMain() : wxFrame(nullptr,wxID_ANY,"SerialViewer2.0",wxPoint(30,30),wxSiz
 	txtReadSz->Add(txtRead,1,wxEXPAND,0);
 	mainPanel->SetSizer(txtReadSz);
 
-	btnConnect=new wxButton(sideBar,btnConnectId,"Connect",wxDefaultPosition,wxSize(100,50));
-	cbxBaud=new wxComboBox(sideBar,cboxBaudId,dps.baudRate,wxDefaultPosition,wxSize(130,25),baudRateNum,baudRateCho,wxCB_READONLY);
-	cbxPort=new wxComboBox(sideBar,cboxPortId,"",wxDefaultPosition,wxSize(130,25));
+	btnConnect=new wxButton(sideBar,wxID_ANY,"Connect",wxDefaultPosition,wxSize(100,50));
+	cbxBaud=new wxComboBox(sideBar,wxID_ANY,dps.baudRate,wxDefaultPosition,wxSize(130,25),baudRateNum,baudRateCho,wxCB_READONLY);
+	cbxPort=new wxComboBox(sideBar,wxID_ANY,"",wxDefaultPosition,wxSize(130,25));
 	chkReset=new wxCheckBox(sideBar,wxID_ANY,"Auto DTR Reset",wxDefaultPosition,wxSize(100,25));
 	wxStaticText *tlaBaud=new wxStaticText(sideBar,wxID_ANY,"Baud Rate",wxDefaultPosition,wxDefaultSize);
 	wxStaticText *tlaPort=new wxStaticText(sideBar,wxID_ANY,"Port Select",wxDefaultPosition,wxDefaultSize);
@@ -82,7 +67,7 @@ cMain::cMain() : wxFrame(nullptr,wxID_ANY,"SerialViewer2.0",wxPoint(30,30),wxSiz
 	mainSettSz->Add(cbxPort,0,wxEXPAND | wxBOTTOM,10);
 	mainSettSz->Add(chkReset,0,wxEXPAND | wxTOP | wxBOTTOM,10);
 
-	tlaConnected=new wxStaticText(sideBar,tlaConnectedId,"Unconnected",wxDefaultPosition,wxDefaultSize,wxALIGN_CENTER_HORIZONTAL | wxST_NO_AUTORESIZE);
+	tlaConnected=new wxStaticText(sideBar,wxID_ANY,"Unconnected",wxDefaultPosition,wxDefaultSize,wxALIGN_CENTER_HORIZONTAL | wxST_NO_AUTORESIZE);
 	tlaConnected->SetForegroundColour(txtColour2);	
 	wxSizer *tlaConnectedAlignSz=new wxBoxSizer(wxHORIZONTAL);
 	tlaConnectedAlignSz->Add(tlaConnected,1,wxALIGN_BOTTOM,0);
@@ -92,8 +77,8 @@ cMain::cMain() : wxFrame(nullptr,wxID_ANY,"SerialViewer2.0",wxPoint(30,30),wxSiz
 	sideBarSz->Add(tlaConnectedAlignSz,0,wxEXPAND,0);
 	sideBar->SetSizerAndFit(sideBarSz);
 
-	btnClear=new wxButton(bottomBar,btnClearId,"Clear",wxDefaultPosition,wxDefaultSize);	
-	chkScroll=new wxCheckBox(bottomBar,chkScrollId,"Auto Scroll",wxDefaultPosition,wxDefaultSize);
+	btnClear=new wxButton(bottomBar,wxID_ANY,"Clear",wxDefaultPosition,wxDefaultSize);	
+	chkScroll=new wxCheckBox(bottomBar,wxID_ANY,"Auto Scroll",wxDefaultPosition,wxDefaultSize);
 	chkClear=new wxCheckBox(bottomBar,wxID_ANY,"Auto Clear",wxDefaultPosition,wxDefaultSize);
 	chkScroll->SetForegroundColour(txtColour1);
 	chkClear->SetForegroundColour(txtColour1);
@@ -117,12 +102,27 @@ cMain::cMain() : wxFrame(nullptr,wxID_ANY,"SerialViewer2.0",wxPoint(30,30),wxSiz
 
 	menubar=new wxMenuBar;
 	file=new wxMenu;
-	file->Append(settingsId,wxT("&Port settings"));
-	file->Append(aboutId,wxT("&About"));
-	file->Append(updatePortsId,wxT("Refresh Ports"));
-	file->Append(listSettingsId,wxT("List Settings"));
+	file->Append(wxID_SETUP,wxT("&Port settings"));
+	file->Append(wxID_ABOUT,wxT("&About"));
+	file->Append(wxID_REFRESH,wxT("Refresh Ports"));
+	file->Append(wxID_PRINT_SETUP,wxT("List Settings"));
 	menubar->Append(file,wxT("&File"));
 	SetMenuBar(menubar);	
+
+	cbxBaud->Bind(wxEVT_COMBOBOX,&cMain::baudChange,this);
+	cbxPort->Bind(wxEVT_COMBOBOX,&cMain::comPortChange,this);
+	btnConnect->Bind(wxEVT_BUTTON,&cMain::serialConnect,this);
+	btnClear->Bind(wxEVT_BUTTON,&cMain::clearReadTxt,this);
+	txtWrite->Bind(wxEVT_TEXT_ENTER,&cMain::onTxtWriteSend,this);
+	chkScroll->Bind(wxEVT_CHECKBOX,&cMain::chkScrollChange,this);
+
+	Bind(wxEVT_MENU,&cMain::menuSettings,this,wxID_SETUP);
+	Bind(wxEVT_MENU,&cMain::menuAbout,this,wxID_ABOUT);
+	Bind(wxEVT_MENU,&cMain::menuUpdatePorts,this,wxID_REFRESH);
+	Bind(wxEVT_MENU,&cMain::menuListSettings,this,wxID_PRINT_SETUP);
+	
+	Bind(PT_WRITE_EVT,&cMain::printReadDataEvt,this,ptWriteEvtId);
+	Bind(SC_ERROR_EVT,&cMain::serialThreadErrorEvt,this,scErrorEvtId);
 }
 
 cMain::~cMain()
@@ -134,12 +134,18 @@ cMain::~cMain()
 void cMain::menuSettings(wxCommandEvent &evt)
 {	
 	settingsDialog sd(wxT("Port Settings"),dps.byteSize,dps.parity,dps.stopBits,dps.delim);
-	if(sd.ShowModal()==btnOkId)
+	if(sd.ShowModal()==sd.btnOkId)
 	{
 		dps.byteSize=sd.cbxByteSize->GetValue();
 		dps.parity=sd.cbxParity->GetValue();
 		dps.stopBits=sd.cbxStopBits->GetValue();
 		dps.delim=sd.cbxDelim->GetValue();
+
+		if(sd.chkSave->GetValue()) 
+		{
+			//TODO: save preset
+			wxMessageBox(wxT("Preset Saved!"));
+		}
 	}	
 
 	evt.Skip();
@@ -161,13 +167,18 @@ void cMain::menuUpdatePorts(wxCommandEvent &evt)
 
 void cMain::menuListSettings(wxCommandEvent &evt)
 {
-	txtRead->AppendText("-Current settings-\n");
-	txtRead->AppendText("Port: "+dps.comPort+'\n');
-	txtRead->AppendText("Baud Rate: "+dps.baudRate+'\n');
-	txtRead->AppendText("Byte Size: "+dps.byteSize+'\n');
-	txtRead->AppendText("Parity: "+dps.parity+'\n');
-	txtRead->AppendText("Stop Bits: "+dps.stopBits+'\n');
-	txtRead->AppendText("Delimiter: "+dps.delim+'\n');
+	string str="";
+	str+=("-Current settings-\n");
+	str+=("Port: "+dps.comPort+'\n');
+	str+=("Baud Rate: "+dps.baudRate+'\n');
+	str+=("Byte Size: "+dps.byteSize+'\n');
+	str+=("Parity: "+dps.parity+'\n');
+	str+=("Stop Bits: "+dps.stopBits+'\n');
+	str+=("Delimiter: "+dps.delim+'\n');
+
+	wxCommandEvent *cEvent=new wxCommandEvent(PT_WRITE_EVT,ptWriteEvtId);
+	cEvent->SetString(str);
+	wxQueueEvent(this,cEvent);
 
 	evt.Skip();
 }
@@ -231,15 +242,15 @@ void cMain::clearReadTxt(wxCommandEvent &evt)
 
 void cMain::onTxtWriteSend(wxCommandEvent &evt)
 {
-	string dataWrite; 
+	string dataWrite="";
 	dataWrite=txtWrite->GetValue();
 	txtWrite->Clear();
 
-	char delimBuff[10];
+	char delimBuff[10]={0};
 	strcpy_s(delimBuff,sizeof(delimBuff),dps.delim.c_str());
 	write(dataWrite,delimBuff);
 
-	//Absence of evt.Skip() removes the warning bell sound on windows when pressing enter
+	evt.Skip();
 }
 
 void cMain::chkScrollChange(wxCommandEvent &evt)
@@ -284,7 +295,7 @@ void cMain::printReadDataEvt(wxCommandEvent &evt)
 {
 	if(autoScroll)
 	{
-		txtRead->AppendText(evt.GetString());
+		txtRead->AppendText(evt.GetString());		
 	}
 	else
 	{
@@ -295,6 +306,8 @@ void cMain::printReadDataEvt(wxCommandEvent &evt)
 		int newpos = ::SendMessage( txtRead->GetHWND(), EM_GETFIRSTVISIBLELINE, 0, 0 );
 		::SendMessage( txtRead->GetHWND(), EM_LINESCROLL, 0, pos-newpos );
 	}
+	
+	evt.Skip();
 }
 
 void cMain::serialThreadErrorEvt(wxCommandEvent &evt)
@@ -303,7 +316,9 @@ void cMain::serialThreadErrorEvt(wxCommandEvent &evt)
 	serialState=false;
 	end();
 	showErrorReport();
-	btnConnect->SetLabel("Disconnected");	
+	btnConnect->SetLabel("Disconnected");
+
+	evt.Skip();
 }
 
 void cMain::showErrorReport()
@@ -403,7 +418,7 @@ void printReadBuffer::printThreadFn(wxEvtHandler* evtHandle)
 
 			int cue=readCue;
 			char buff[rbs+1]={0};
-			string str; //TODO: May be remove later
+			string str=""; //TODO: May be remove later
 			int offset=0; //To accuount for /0 in buffer
 			//TODO: slow read with /r and /0 detection, should be removed in future
 			for(int i=0;i<=cue-1;i++)

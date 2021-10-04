@@ -8,26 +8,9 @@
 #include <string.h>
 #include "windows.h"
 
+//TODO: remove
 #define baudRateNum 2
-const wxString baudRateCho[baudRateNum]={"9600","115200"};
-
-#define baseID 10000
-//TODO: unify IDs and events
-const int btnConnectId=  baseID+1;
-const int settingsId=    baseID+2;
-const int aboutId=       baseID+3;
-const int cboxBaudId=    baseID+4;
-const int updatePortsId= baseID+5;
-const int cboxPortId=    baseID+6;
-const int listSettingsId=baseID+7;
-const int btnClearId=    baseID+8;
-
-const int ptWriteEvtId= baseID2+9; //Print thread write read data evt
-	    //stErrorEvt=   baseID2+10;
-const int txtWriteId=	 baseID+11;
-const int chkScrollId=   baseID+12;
-const int tlaConnectedId=baseID+13;
-		//btnOkId=		 baseID+14;
+const wxString baudRateCho[baudRateNum]={"9600","115200"};		
 
 class printReadBuffer : public serialClass
 {
@@ -38,18 +21,19 @@ class printReadBuffer : public serialClass
 	private:
 		void printThreadFn(wxEvtHandler *evtHandle);
 
-	private:
+	private:		
 		std::thread printThread;
 		bool printThreadState=false;
+
+	protected:
+		const int ptWriteEvtId=wxWindow::NewControlId();
 };
 
 class cMain : public wxFrame, public printReadBuffer
 {
 	public:
 		cMain();
-		~cMain();
-
-		wxDECLARE_EVENT_TABLE();
+		~cMain();		
 
 		void menuSettings(wxCommandEvent &evt);
 		void menuAbout(wxCommandEvent &evt);

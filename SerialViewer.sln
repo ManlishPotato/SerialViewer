@@ -11,6 +11,10 @@ Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
 		Debug|x86 = Debug|x86
+		DLL Debug|x64 = DLL Debug|x64
+		DLL Debug|x86 = DLL Debug|x86
+		DLL Release|x64 = DLL Release|x64
+		DLL Release|x86 = DLL Release|x86
 		Release|x64 = Release|x64
 		Release|x86 = Release|x86
 	EndGlobalSection
@@ -19,15 +23,30 @@ Global
 		{0F6D37C6-14AC-48E9-89B2-C460FB43A1A0}.Debug|x64.Build.0 = Debug|x64
 		{0F6D37C6-14AC-48E9-89B2-C460FB43A1A0}.Debug|x86.ActiveCfg = Debug|Win32
 		{0F6D37C6-14AC-48E9-89B2-C460FB43A1A0}.Debug|x86.Build.0 = Debug|Win32
+		{0F6D37C6-14AC-48E9-89B2-C460FB43A1A0}.DLL Debug|x64.ActiveCfg = Debug|x64
+		{0F6D37C6-14AC-48E9-89B2-C460FB43A1A0}.DLL Debug|x64.Build.0 = Debug|x64
+		{0F6D37C6-14AC-48E9-89B2-C460FB43A1A0}.DLL Debug|x86.ActiveCfg = Debug|Win32
+		{0F6D37C6-14AC-48E9-89B2-C460FB43A1A0}.DLL Debug|x86.Build.0 = Debug|Win32
+		{0F6D37C6-14AC-48E9-89B2-C460FB43A1A0}.DLL Release|x64.ActiveCfg = Release|x64
+		{0F6D37C6-14AC-48E9-89B2-C460FB43A1A0}.DLL Release|x64.Build.0 = Release|x64
+		{0F6D37C6-14AC-48E9-89B2-C460FB43A1A0}.DLL Release|x86.ActiveCfg = Release|Win32
+		{0F6D37C6-14AC-48E9-89B2-C460FB43A1A0}.DLL Release|x86.Build.0 = Release|Win32
 		{0F6D37C6-14AC-48E9-89B2-C460FB43A1A0}.Release|x64.ActiveCfg = Release|x64
 		{0F6D37C6-14AC-48E9-89B2-C460FB43A1A0}.Release|x64.Build.0 = Release|x64
 		{0F6D37C6-14AC-48E9-89B2-C460FB43A1A0}.Release|x86.ActiveCfg = Release|Win32
 		{0F6D37C6-14AC-48E9-89B2-C460FB43A1A0}.Release|x86.Build.0 = Release|Win32
 		{398E723E-853C-4A43-9199-461A8F3B1BA9}.Debug|x64.ActiveCfg = Debug
 		{398E723E-853C-4A43-9199-461A8F3B1BA9}.Debug|x86.ActiveCfg = Debug
+		{398E723E-853C-4A43-9199-461A8F3B1BA9}.DLL Debug|x64.ActiveCfg = Debug
+		{398E723E-853C-4A43-9199-461A8F3B1BA9}.DLL Debug|x64.Build.0 = Debug
+		{398E723E-853C-4A43-9199-461A8F3B1BA9}.DLL Debug|x86.ActiveCfg = Debug
+		{398E723E-853C-4A43-9199-461A8F3B1BA9}.DLL Debug|x86.Build.0 = Debug
+		{398E723E-853C-4A43-9199-461A8F3B1BA9}.DLL Release|x64.ActiveCfg = Release
+		{398E723E-853C-4A43-9199-461A8F3B1BA9}.DLL Release|x64.Build.0 = Release
+		{398E723E-853C-4A43-9199-461A8F3B1BA9}.DLL Release|x86.ActiveCfg = Release
+		{398E723E-853C-4A43-9199-461A8F3B1BA9}.DLL Release|x86.Build.0 = Release
 		{398E723E-853C-4A43-9199-461A8F3B1BA9}.Release|x64.ActiveCfg = Release
 		{398E723E-853C-4A43-9199-461A8F3B1BA9}.Release|x86.ActiveCfg = Release
-		{398E723E-853C-4A43-9199-461A8F3B1BA9}.Release|x86.Build.0 = Release
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -9,13 +9,9 @@
 #include <string>
 #include <string.h>
 
-//Custom events
-#define baseID2 10000
-const int stErrorEvtId=  baseID2+10; //Serial thread error throw evt
-
 //Buffer size standards
-#define rbs 256
-#define tbs 256
+#define rbs 255
+#define tbs 255
 #define MAX_PORT_NUM 10
 
 class portSettings
@@ -61,13 +57,17 @@ class serialThreads
 		std::string errorCode;
 		std::wstring spErrorCode;
 
-	private:
+	private:		
 		std::thread readThread;
 		std::thread writeThread;
 		std::mutex classMutex;
 		bool readThreadState=false;
 		bool writeThreadState=false;
-		wxEvtHandler *evtHandlePtr;
+		wxEvtHandler *evtHandlePtr;	
+		
+	protected:
+		HANDLE portHandle;
+		const int scErrorEvtId=wxWindow::NewControlId();
 };
 
 class serialClass : public serialThreads
@@ -79,7 +79,7 @@ class serialClass : public serialThreads
 		bool reset();
 		
 	private:
-		void scErrorHandler(std::string msg); //Serial class error handler
+		void scErrorHandler(std::string msg); //Serial class error handler			
 };
 
 class FindComPorts

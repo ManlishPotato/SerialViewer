@@ -1,5 +1,11 @@
 To be Implemented:		
 	-Unify IDs
+	-Move printThread to serialClass
+	-User savable port settings
+	-Keyboard shortcuts to serial write etc.
+	-Make port settings unavailable during connection
+	-Subdivide "File" contents into other menus
+	-Add icon
 
 Bugs to fix:
-	-MCU reset even when auto dtr reset is turned off
+	-MCU reset even when auto dtr reset is turned off - To be tested
