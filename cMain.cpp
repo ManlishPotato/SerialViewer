@@ -2,9 +2,6 @@
 #include "cMain.h"
 using namespace std;
 
-//TODO: remove this
-DeafultPortSettings dps;
-
 wxDECLARE_EVENT(PT_WRITE_EVT,wxCommandEvent); //Print thread write event
 wxDECLARE_EVENT(SC_ERROR_EVT,wxCommandEvent); //Serial thread error event
 
@@ -51,7 +48,7 @@ cMain::cMain() : wxFrame(nullptr,wxID_ANY,"SerialViewer2.0",wxPoint(30,30),wxSiz
 	mainPanel->SetSizer(txtReadSz);
 
 	btnConnect=new wxButton(sideBar,wxID_ANY,"Connect",wxDefaultPosition,wxSize(100,50));
-	cbxBaud=new wxComboBox(sideBar,wxID_ANY,dps.baudRate,wxDefaultPosition,wxSize(130,25),baudRateNum,baudRateCho,wxCB_READONLY);
+	cbxBaud=new wxComboBox(sideBar,wxID_ANY,defBaudRate,wxDefaultPosition,wxSize(130,25),cbxBaudNum,cbxBaudSel,wxCB_READONLY);
 	cbxPort=new wxComboBox(sideBar,wxID_ANY,"",wxDefaultPosition,wxSize(130,25));
 	chkReset=new wxCheckBox(sideBar,wxID_ANY,"Auto DTR Reset",wxDefaultPosition,wxSize(100,25));
 	wxStaticText *tlaBaud=new wxStaticText(sideBar,wxID_ANY,"Baud Rate",wxDefaultPosition,wxDefaultSize);
@@ -133,13 +130,13 @@ cMain::~cMain()
 
 void cMain::menuSettings(wxCommandEvent &evt)
 {	
-	settingsDialog sd(wxT("Port Settings"),dps.byteSize,dps.parity,dps.stopBits,dps.delim);
+	settingsDialog sd(wxT("Port Settings"),defByteSize,defParity,defStopBits,defDelim);
 	if(sd.ShowModal()==sd.btnOkId)
 	{
-		dps.byteSize=sd.cbxByteSize->GetValue();
-		dps.parity=sd.cbxParity->GetValue();
-		dps.stopBits=sd.cbxStopBits->GetValue();
-		dps.delim=sd.cbxDelim->GetValue();
+		defByteSize=sd.cbxByteSize->GetValue();
+		defParity=sd.cbxParity->GetValue();
+		defStopBits=sd.cbxStopBits->GetValue();
+		defDelim=sd.cbxDelim->GetValue();
 
 		if(sd.chkSave->GetValue()) 
 		{
@@ -169,12 +166,12 @@ void cMain::menuListSettings(wxCommandEvent &evt)
 {
 	string str="";
 	str+=("-Current settings-\n");
-	str+=("Port: "+dps.comPort+'\n');
-	str+=("Baud Rate: "+dps.baudRate+'\n');
-	str+=("Byte Size: "+dps.byteSize+'\n');
-	str+=("Parity: "+dps.parity+'\n');
-	str+=("Stop Bits: "+dps.stopBits+'\n');
-	str+=("Delimiter: "+dps.delim+'\n');
+	str+=("Port: "+defComPort+'\n');
+	str+=("Baud Rate: "+defBaudRate+'\n');
+	str+=("Byte Size: "+defByteSize+'\n');
+	str+=("Parity: "+defParity+'\n');
+	str+=("Stop Bits: "+defStopBits+'\n');
+	str+=("Delimiter: "+defDelim+'\n');
 
 	wxCommandEvent *cEvent=new wxCommandEvent(PT_WRITE_EVT,ptWriteEvtId);
 	cEvent->SetString(str);
@@ -185,14 +182,14 @@ void cMain::menuListSettings(wxCommandEvent &evt)
 
 void cMain::baudChange(wxCommandEvent &evt)
 {
-	dps.baudRate=cbxBaud->GetValue();	
+	defBaudRate=cbxBaud->GetValue();	
 
 	evt.Skip();
 }
 
 void cMain::comPortChange(wxCommandEvent &evt)
 {
-	dps.comPort=cbxPort->GetValue();
+	defComPort=cbxPort->GetValue();
 
 	evt.Skip();
 }
@@ -247,7 +244,7 @@ void cMain::onTxtWriteSend(wxCommandEvent &evt)
 	txtWrite->Clear();
 
 	char delimBuff[10]={0};
-	strcpy_s(delimBuff,sizeof(delimBuff),dps.delim.c_str());
+	strcpy_s(delimBuff,sizeof(delimBuff),defDelim.c_str());
 	write(dataWrite,delimBuff);
 
 	evt.Skip();
@@ -288,7 +285,7 @@ void cMain::updateComPorts()
 		cbxPort->SetValue(portBuffer[0]);
 	}
 
-	dps.comPort=cbxPort->GetValue();
+	defComPort=cbxPort->GetValue();
 }
 
 void cMain::printReadDataEvt(wxCommandEvent &evt)
@@ -331,20 +328,21 @@ void cMain::getUserSettings(portSettings &ps)
 {	
 	int sizeDest=sizeof(ps.comPort);
 	sizeDest/=2; //For number of wide chars
-	wcscpy_s(ps.comPort,sizeDest,dps.comPort.wc_str());
+	wcscpy_s(ps.comPort,sizeDest,defComPort.wc_str());
 
-	if(dps.baudRate==baudRateCho[0]) ps.baudRate=9600;
-	else if(dps.baudRate==baudRateCho[1]) ps.baudRate=115200;
+	cbxPortSettings cps;
+	if(defBaudRate==cbxBaudSel[0]) ps.baudRate=9600;
+	else if(defBaudRate==cbxBaudSel[1]) ps.baudRate=115200;
 
-	if(dps.byteSize==byteSizeCho[0]) ps.byteSize=7;
-	else if(dps.byteSize==byteSizeCho[1]) ps.byteSize=8;	
+	if(defByteSize==cps.byteSizeCho[0]) ps.byteSize=7;
+	else if(defByteSize==cps.byteSizeCho[1]) ps.byteSize=8;	
 
-	if(dps.parity==parityCho[0]) ps.parity=NOPARITY;
-	else if(dps.parity==parityCho[1]) ps.parity=EVENPARITY;
-	else if(dps.parity==parityCho[2]) ps.parity=ODDPARITY;
+	if(defParity==cps.parityCho[0]) ps.parity=NOPARITY;
+	else if(defParity==cps.parityCho[1]) ps.parity=EVENPARITY;
+	else if(defParity==cps.parityCho[2]) ps.parity=ODDPARITY;
 
-	if(dps.stopBits==stopBitsCho[0]) ps.stopBits=ONESTOPBIT;
-	else if(dps.stopBits==stopBitsCho[1]) ps.stopBits=TWOSTOPBITS;
+	if(defStopBits==cps.stopBitsCho[0]) ps.stopBits=ONESTOPBIT;
+	else if(defStopBits==cps.stopBitsCho[1]) ps.stopBits=TWOSTOPBITS;
 }
 
 void cMain::uiConnected()

@@ -8,9 +8,18 @@
 #include <string.h>
 #include "windows.h"
 
-//TODO: remove
-#define baudRateNum 2
-const wxString baudRateCho[baudRateNum]={"9600","115200"};		
+#define cbxBaudNum 2
+
+class DeafultPortSettings
+{
+	public:
+		wxString defComPort="COM3";
+		wxString defBaudRate="9600";
+		wxString defByteSize="8 bit";
+		wxString defParity="None";
+		wxString defStopBits="1 bit";
+		wxString defDelim=">";
+};
 
 class printReadBuffer : public serialClass
 {
@@ -29,7 +38,7 @@ class printReadBuffer : public serialClass
 		const int ptWriteEvtId=wxWindow::NewControlId();
 };
 
-class cMain : public wxFrame, public printReadBuffer
+class cMain : public wxFrame,public printReadBuffer,public DeafultPortSettings
 {
 	public:
 		cMain();
@@ -60,6 +69,8 @@ class cMain : public wxFrame, public printReadBuffer
 		void uiError();
 		
 	public:
+		const wxString cbxBaudSel[cbxBaudNum]={"9600","115200"};
+
 		wxTextCtrl* txtWrite=nullptr;
 		wxTextCtrl* txtRead=nullptr;
 		wxButton* btnConnect=nullptr;
@@ -86,15 +97,4 @@ class cMain : public wxFrame, public printReadBuffer
 		wxColour txtColour2=wxColour(170,170,170); //Dark/gray white text colour
 		wxColour txtColour3=*wxGREEN; //Bright green text colour
 		wxColour txtColour4=*wxRED; //Red text colour
-};
-
-class DeafultPortSettings
-{
-	public:
-		wxString comPort="COM3";
-		wxString baudRate="9600";
-		wxString byteSize="8 bit";
-		wxString parity="None";
-		wxString stopBits="1 bit";
-		wxString delim=">";
 };
