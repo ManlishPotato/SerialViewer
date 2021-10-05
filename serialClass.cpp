@@ -112,16 +112,18 @@ bool serialThreads::writeThreadFn()
 			char dataOutBuffer[tbs]={0};
 			DWORD bytesWritten=0;
 
-			int wc=writeCue;
-			for(int i=0;i<=wc-1;i++)
+			DWORD wc=writeCue;
+			for(unsigned int i=0;i<wc;i++)
 			{
 				dataOutBuffer[i]=writeBuffer[wbrp];
 				if(wbrp>=tbs-1) wbrp=0; else wbrp++;
-			}
-			writeCue-=wc;
+			}			
 			
-			unique_lock<mutex> lck(classMutex);								
-			if(!WriteFile(portHandle,dataOutBuffer,wc,&bytesWritten,&writeOv))
+			bool state=false;
+			unique_lock<mutex> lck(classMutex);			
+			state=WriteFile(portHandle,dataOutBuffer,wc,&bytesWritten,&writeOv);	
+
+			if(!state)
 			{
 				DWORD lastError=GetLastError();
 				lck.unlock();
@@ -129,7 +131,13 @@ bool serialThreads::writeThreadFn()
 				{
 					if(WaitForSingleObject(writeOv.hEvent,INFINITE)==WAIT_OBJECT_0)
 					{						
-						if(!GetOverlappedResult(portHandle,&writeOv,&bytesWritten,false)) {CloseHandle(writeOv.hEvent); stErrorHandler("Error writing, write failed after waiting GOR."); return false;}
+						if(GetOverlappedResult(portHandle,&writeOv,&bytesWritten,false)) writeCue-=bytesWritten;
+						else 
+						{
+							CloseHandle(writeOv.hEvent);
+							stErrorHandler("Error writing, write failed after waiting GOR.");
+							return false;
+						}
 					}
 					else {CloseHandle(writeOv.hEvent); stErrorHandler("Error writing, wait failed WFSO."); return false;}
 				}
@@ -138,7 +146,12 @@ bool serialThreads::writeThreadFn()
 			else
 			{
 				lck.unlock();
-				if(!GetOverlappedResult(portHandle,&writeOv,&bytesWritten,false)) {CloseHandle(writeOv.hEvent); stErrorHandler("Error write returned instantly, write failed."); return false;}
+				if(GetOverlappedResult(portHandle,&writeOv,&bytesWritten,false)) writeCue-=bytesWritten;
+				{
+					CloseHandle(writeOv.hEvent);
+					stErrorHandler("Error write returned instantly, write failed.");
+					return false;
+				}
 			}
 		}
 	}
@@ -201,7 +214,7 @@ bool serialClass::init(portSettings ps,wxEvtHandler *evtHandle,bool doResetMcu)
 	dcb.ByteSize=ps.byteSize;
 	dcb.Parity=ps.parity;
 	dcb.StopBits=ps.stopBits;
-	dcb.fDtrControl=DTR_CONTROL_ENABLE;
+	dcb.fDtrControl=DTR_CONTROL_DISABLE;
 
 	if(!::SetCommState(portHandle,&dcb)) {scErrorHandler("Error setting comm state"); return false;}
 
@@ -219,20 +232,23 @@ bool serialClass::init(portSettings ps,wxEvtHandler *evtHandle,bool doResetMcu)
 	
 	startThreads(evtHandle);
 
-	if(doResetMcu) if(!reset()) return false;
+	if(doResetMcu) 
+	{
+		if(!reset()) return false;
+	}
 
 	return true;
 }
 
 void serialClass::end()
-{
+{	
 	if(serialState)
 	{
 		serialState=false;
 		CancelIoEx(portHandle,NULL);
-		endThreads();
 		CloseHandle(portHandle);
 	}
+	endThreads();	
 }
 
 bool serialClass::write(string str,char *delim)
@@ -253,9 +269,9 @@ bool serialClass::write(string str,char *delim)
 }
 
 bool serialClass::reset()
-{
-	if(!EscapeCommFunction(portHandle,CLRDTR)) {scErrorHandler("Error clearing dtr"); return false;}
+{	
 	if(!EscapeCommFunction(portHandle,SETDTR)) {scErrorHandler("Error setting dtr"); return false;}
+	if(!EscapeCommFunction(portHandle,CLRDTR)) {scErrorHandler("Error clearing dtr"); return false;}
 
 	return true;
 }

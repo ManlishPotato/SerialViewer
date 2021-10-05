@@ -47,6 +47,7 @@ Global
 		{398E723E-853C-4A43-9199-461A8F3B1BA9}.DLL Release|x86.Build.0 = Release
 		{398E723E-853C-4A43-9199-461A8F3B1BA9}.Release|x64.ActiveCfg = Release
 		{398E723E-853C-4A43-9199-461A8F3B1BA9}.Release|x86.ActiveCfg = Release
+		{398E723E-853C-4A43-9199-461A8F3B1BA9}.Release|x86.Build.0 = Release
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

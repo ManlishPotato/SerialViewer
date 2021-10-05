@@ -119,7 +119,7 @@ cMain::cMain() : wxFrame(nullptr,wxID_ANY,"SerialViewer2.0",wxPoint(30,30),wxSiz
 	Bind(wxEVT_MENU,&cMain::menuListSettings,this,wxID_PRINT_SETUP);
 	
 	Bind(PT_WRITE_EVT,&cMain::printReadDataEvt,this,ptWriteEvtId);
-	Bind(SC_ERROR_EVT,&cMain::serialThreadErrorEvt,this,scErrorEvtId);
+	Bind(SC_ERROR_EVT,&cMain::serialThreadErrorEvt,this,scErrorEvtId);	
 }
 
 cMain::~cMain()
@@ -150,7 +150,7 @@ void cMain::menuSettings(wxCommandEvent &evt)
 
 void cMain::menuAbout(wxCommandEvent &evt)
 {
-	wxMessageBox(wxT("SerialViewer version 2.0\nDeveloped by Benjamin Solar."));
+	wxMessageBox(wxT("SerialViewer version 3.0\nDeveloped by Benjamin Solar."));
 
 	evt.Skip();
 }
@@ -198,13 +198,12 @@ void cMain::serialConnect(wxCommandEvent &evt)
 {
 	portSettings pSettings;
 	getUserSettings(pSettings);
-
-	serialState=!serialState;
-	if(serialState)
+	
+	if(serialState==false)
 	{
 		//Init serial
-		bool doReset=chkReset->GetValue(); //TODO: May possibly be removed
-		if(!init(pSettings,this,doReset))
+		bool doReset=chkReset->GetValue();
+		if(!init(pSettings,this,doReset)) //serialState=true
 		{
 			//Error at init
 			showErrorReport();
@@ -223,7 +222,7 @@ void cMain::serialConnect(wxCommandEvent &evt)
 		//Otherwise end serial
 		//TODO: flush serial buffer before close
 		uiDisconnected();
-		end();
+		end(); //serialState=false
 		endPrintThr();
 	}
 
@@ -310,10 +309,9 @@ void cMain::printReadDataEvt(wxCommandEvent &evt)
 void cMain::serialThreadErrorEvt(wxCommandEvent &evt)
 {	
 	//Handle runtime error
-	serialState=false;
 	end();
 	showErrorReport();
-	btnConnect->SetLabel("Disconnected");
+	uiError();
 
 	evt.Skip();
 }

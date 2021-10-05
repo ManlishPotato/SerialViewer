@@ -6,6 +6,7 @@ To be Implemented:
 	-Make port settings unavailable during connection
 	-Subdivide "File" contents into other menus
 	-Add icon
+	-Don't throw error when pressing disconnect button
 
 Bugs to fix:
 	-MCU reset even when auto dtr reset is turned off - To be tested

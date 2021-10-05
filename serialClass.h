@@ -54,8 +54,8 @@ class serialThreads
 		int wbwp=0;
 		int writeCue=0;
 
-		std::string errorCode;
-		std::wstring spErrorCode;
+		std::string errorCode="";
+		std::wstring spErrorCode=L"";
 
 	private:		
 		std::thread readThread;
@@ -94,6 +94,6 @@ class FindComPorts
 		bool enumValueKey(HKEY regKey,DWORD numValues,DWORD maxNameLen,DWORD maxValueSize,std::wstring *nameArray,std::wstring *valueArray);
 
 	public:
-		std::string specificErrorCode;
+		std::string specificErrorCode="";
 };
 
