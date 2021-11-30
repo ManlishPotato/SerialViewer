@@ -1,3 +1,5 @@
+//SerialViewer Ver3.0 - Developed by Benjamin Solar
+
 //TODO: Add debug for readCue and writeCue
 #include "cMain.h"
 using namespace std;
@@ -8,7 +10,7 @@ wxDECLARE_EVENT(SC_ERROR_EVT,wxCommandEvent); //Serial thread error event
 wxDEFINE_EVENT(PT_WRITE_EVT,wxCommandEvent);
 wxDEFINE_EVENT(SC_ERROR_EVT,wxCommandEvent);
 
-cMain::cMain() : wxFrame(nullptr,wxID_ANY,"SerialViewer2.0",wxPoint(30,30),wxSize(850,800))
+cMain::cMain() : wxFrame(nullptr,wxID_ANY,"SerialViewer",wxPoint(30,30),wxSize(850,800))
 {	
 	wxPanel *topBar=new wxPanel(this,wxID_ANY,wxDefaultPosition,wxDefaultSize);
 	topBar->SetBackgroundColour(secondaryColour1);
