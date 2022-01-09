@@ -12,7 +12,6 @@
 //Buffer size standards
 #define rbs 255
 #define tbs 255
-#define MAX_PORT_NUM 10
 
 class portSettings
 {
@@ -80,20 +79,5 @@ class serialClass : public serialThreads
 		
 	private:
 		void scErrorHandler(std::string msg); //Serial class error handler			
-};
-
-class FindComPorts
-{
-	public:
-		bool listComPorts(std::wstring *portNameList,std::wstring *portList,int &numPorts,std::string &error);
-
-	private:
-		void regErrorHandler(HKEY key,std::string &error,const std::string errorCode);
-		bool openRegister(HKEY rootKey,const wchar_t* subKey,HKEY &opKey);
-		bool infoKey(HKEY regKey,DWORD &numValues,DWORD &maxNameLen,DWORD &maxValueSize);
-		bool enumValueKey(HKEY regKey,DWORD numValues,DWORD maxNameLen,DWORD maxValueSize,std::wstring *nameArray,std::wstring *valueArray);
-
-	public:
-		std::string specificErrorCode="";
 };
 

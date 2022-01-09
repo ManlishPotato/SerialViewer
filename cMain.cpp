@@ -152,7 +152,7 @@ void cMain::menuSettings(wxCommandEvent &evt)
 
 void cMain::menuAbout(wxCommandEvent &evt)
 {
-	wxMessageBox(wxT("SerialViewer version 3.0\nDeveloped by Benjamin Solar."));
+	wxMessageBox(wxT("SerialViewer version 4.0\nDeveloped by Benjamin Solar."));
 
 	evt.Skip();
 }
@@ -259,34 +259,43 @@ void cMain::chkScrollChange(wxCommandEvent &evt)
 }
 
 void cMain::updateComPorts()
-{
-	//TODO: Error code handler!!
-	FindComPorts findCom;
-	wstring ports[MAX_PORT_NUM];
-	wstring portNames[MAX_PORT_NUM];
-	int nPorts;
-	string errorC;
-	findCom.listComPorts(portNames,ports,nPorts,errorC);
+{	
+	SearchComPorts comSearch;
 
+	wstring foundCom[MAX_PORT_NUM];
+	wstring foundComName[MAX_PORT_NUM];
+	int numPorts=0;
+	
 	cbxPort->Clear();
 
-	if(nPorts<1) 
-	{
-		cbxPort->Append("No com. ports"); //Add value to list
-		cbxPort->SetValue("No com. ports"); //Select added value for display
+	bool result=comSearch.listComPorts(foundComName,foundCom,numPorts);
+	if(result || comSearch.regSpError=="FILE_NOT_FOUND")
+	{		
+		if(numPorts>0)
+		{
+			wxString portBuffer[MAX_PORT_NUM];
+			for(int i=0;i<numPorts;i++) 
+			{
+				portBuffer[i]=foundCom[i];
+				cbxPort->Append(portBuffer[i]);
+			}
+			cbxPort->SetValue(portBuffer[0]);
+
+			defComPort=cbxPort->GetValue();
+		}
+		else
+		{
+			cbxPort->Append("No com. ports"); //Add value to list
+			cbxPort->SetValue("No com. ports"); //Select added value for display
+		}		
 	}
 	else
 	{
-		wxString portBuffer[MAX_PORT_NUM];
-		for(int i=0;i<nPorts;i++) 
-		{
-			portBuffer[i]=ports[i];
-			cbxPort->Append(portBuffer[i]);
-		}
-		cbxPort->SetValue(portBuffer[0]);
+		//Fatal issue
+		uiError();
+		txtRead->AppendText("Reg error: "+comSearch.regError);
+		txtRead->AppendText("Specific: "+comSearch.regSpError);
 	}
-
-	defComPort=cbxPort->GetValue();
 }
 
 void cMain::printReadDataEvt(wxCommandEvent &evt)

@@ -2,6 +2,7 @@
 #include "wx/wx.h"
 #include "settingsDialog.h"
 #include "serialClass.h"
+#include "SearchComPorts.h"
 
 #include <thread>
 #include <string>
